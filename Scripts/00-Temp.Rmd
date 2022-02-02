@@ -1,0 +1,35 @@
+---
+title: "00-Temp"
+author: "Nicki Lentz"
+date: "2/2/2022"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+
+df <- data.table::fread("Data/RawData/OFDataExportTraining.csv") %>% 
+  janitor::clean_names() %>% 
+  #Unix time to datetime object
+  mutate(start_time = lubridate::as_datetime(start_time),
+         end_time = lubridate::as_datetime(end_time),
+         difftime = difftime(end_time, start_time, units = "secs"),
+         athlete = as.factor(athlete))
+%>% 
+  select(activity, period, athlete, start_time, end_time, movement_type, duration, difftime)
+```
+
+```{r}
+df %>% 
+  group_by(athlete) %>% 
+  count(movement_type) %>% 
+  ggplot(aes(x = movement_type, y = n, fill = movement_type)) + 
+  geom_col() + 
+  facet_wrap(~ athlete, scale = "free_y") + 
+  theme(legend.position = "none",
+        axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+```
+
