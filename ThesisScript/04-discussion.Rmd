@@ -1,7 +1,0 @@
----
-title: ''
-output: pdf_document
----
-
-
-# Discussion
