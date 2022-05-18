@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>1 Introduction | 00-main.knit</title>
+  <meta name="description" content="" />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="1 Introduction | 00-main.knit" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="1 Introduction | 00-main.knit" />
+  
+  
+  
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+
+<link rel="next" href="method.html"/>
+<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+
+
+
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="1" data-path="introduction.html"><a href="introduction.html"><i class="fa fa-check"></i><b>1</b> Introduction</a></li>
+<li class="chapter" data-level="2" data-path="method.html"><a href="method.html"><i class="fa fa-check"></i><b>2</b> Method</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="method.html"><a href="method.html#participants"><i class="fa fa-check"></i><b>2.1</b> Participants</a></li>
+<li class="chapter" data-level="2.2" data-path="method.html"><a href="method.html#protocol-design"><i class="fa fa-check"></i><b>2.2</b> Protocol design</a>
+<ul>
+<li class="chapter" data-level="2.2.1" data-path="method.html"><a href="method.html#technical-design"><i class="fa fa-check"></i><b>2.2.1</b> Technical design</a></li>
+<li class="chapter" data-level="2.2.2" data-path="method.html"><a href="method.html#practical-design"><i class="fa fa-check"></i><b>2.2.2</b> Practical design</a></li>
+</ul></li>
+<li class="chapter" data-level="2.3" data-path="method.html"><a href="method.html#labeling"><i class="fa fa-check"></i><b>2.3</b> Labeling</a></li>
+<li class="chapter" data-level="2.4" data-path="method.html"><a href="method.html#dataproc"><i class="fa fa-check"></i><b>2.4</b> Data processing</a></li>
+<li class="chapter" data-level="2.5" data-path="method.html"><a href="method.html#feature-engineering"><i class="fa fa-check"></i><b>2.5</b> Feature engineering</a></li>
+<li class="chapter" data-level="2.6" data-path="method.html"><a href="method.html#trainModels"><i class="fa fa-check"></i><b>2.6</b> Training the models</a></li>
+<li class="chapter" data-level="2.7" data-path="method.html"><a href="method.html#extraction-of-trends-in-the-model"><i class="fa fa-check"></i><b>2.7</b> Extraction of trends in the model</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>3</b> Results</a></li>
+<li class="chapter" data-level="4" data-path="discussion.html"><a href="discussion.html"><i class="fa fa-check"></i><b>4</b> Discussion</a></li>
+<li class="chapter" data-level="5" data-path="conclusion.html"><a href="conclusion.html"><i class="fa fa-check"></i><b>5</b> Conclusion</a></li>
+<li class="chapter" data-level="6" data-path="appendix.html"><a href="appendix.html"><i class="fa fa-check"></i><b>6</b> Appendix</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="appendix.html"><a href="appendix.html#App:A"><i class="fa fa-check"></i><b>6.1</b> Detailed Method</a>
+<ul>
+<li class="chapter" data-level="6.1.1" data-path="appendix.html"><a href="appendix.html#signal-filter"><i class="fa fa-check"></i><b>6.1.1</b> Signal Filter</a></li>
+<li class="chapter" data-level="6.1.2" data-path="appendix.html"><a href="appendix.html#trend-removal-of-time-series-data"><i class="fa fa-check"></i><b>6.1.2</b> Trend removal of time series data</a></li>
+<li class="chapter" data-level="6.1.3" data-path="appendix.html"><a href="appendix.html#cs-sized-windows"><i class="fa fa-check"></i><b>6.1.3</b> 50 cs sized windows</a></li>
+<li class="chapter" data-level="6.1.4" data-path="appendix.html"><a href="appendix.html#choice-of-feature-vectors"><i class="fa fa-check"></i><b>6.1.4</b> Choice of Feature vectors</a></li>
+<li class="chapter" data-level="6.1.5" data-path="appendix.html"><a href="appendix.html#choice-of-feature-aggregrations"><i class="fa fa-check"></i><b>6.1.5</b> Choice of Feature Aggregrations</a></li>
+<li class="chapter" data-level="6.1.6" data-path="appendix.html"><a href="appendix.html#leave-one-subject-out"><i class="fa fa-check"></i><b>6.1.6</b> Leave one subject out</a></li>
+<li class="chapter" data-level="6.1.7" data-path="appendix.html"><a href="appendix.html#variable-selection-using-random-forest"><i class="fa fa-check"></i><b>6.1.7</b> Variable Selection Using Random Forest</a></li>
+<li class="chapter" data-level="6.1.8" data-path="appendix.html"><a href="appendix.html#upsampling-techniques"><i class="fa fa-check"></i><b>6.1.8</b> Upsampling techniques</a></li>
+<li class="chapter" data-level="6.1.9" data-path="appendix.html"><a href="appendix.html#futility-analysis-for-hyperparameter-tuning"><i class="fa fa-check"></i><b>6.1.9</b> Futility Analysis for hyperparameter tuning</a></li>
+<li class="chapter" data-level="6.1.10" data-path="appendix.html"><a href="appendix.html#model-performance-metrics"><i class="fa fa-check"></i><b>6.1.10</b> Model performance metrics</a></li>
+</ul></li>
+</ul></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./"></a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<!--bookdown:title:end-->
+<!--bookdown:title:start-->
+<div id="introduction" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Introduction</h1>
+<p>In sports it is important to gain knowledge about the physical demands, especially in reference to the playing position, to optimize the daily training, enhance performance and prevent injuries, this is especially true for sports with many high intensity accelerations and decelerations like handball .</p>
+<p>Handball is a professional and Olympic sport with a huge following, with over 128.000 teams and 27 million players worldwide and had a cumulative global television audience of over 2 billion at the 2019 Men’s world championships . It is a high-intense invasion sport with over 100 throws per hour during practices, and numerous changes of acceleration, jumps and a lot of physical contact . Therefore, handball has a high rate of overuse injuries, primarily in the shoulder- and knee joint . Previous studies have reported a prevalence of shoulder pain of 41-75% and 15-57% for lifetime and seasonal respectively, and incidence rates ranging from 0.2-1.4 per 100 playing hours . Furthermore,  found that the external load is dependent on their player position, e.g., the center back performed significantly more high intensity accelerations and decelerations than the other positions. This is supported by  and  that found significant positional differences in the on-court physical demands.
+It is therefore important to be able to track each player during training to quantify the external load and make it possible for trainers to take informed decisions.</p>
+<p>One of the most common technologies to monitor player movement is Global Positioning System (GPS) which have proved to be reliable in tracking outside team sports, if the sampling frequency is at least 10 Hz , and has also shown to be viable independent on the time of day . However, it is only able to track positions outside because it requires signal to satellites. Therefore, one of the most common tracking tools for inside team sports has been video-based time-motion analysis. This method is time consuming when working with large sample sizes.  reports that it can take approximately 8 h to analyze one player for an 80-min rugby match. This also means that it will not be possible to give real-time feedback to athletes. An alternative is to use Inertial Measurement Units (IMU) together with machine learning algorithms, which have been used in both outdoor and indoor team sports to measure the training load for each player .</p>
+<p>An IMU consists of an accelerometer, gyroscope and a magnetometer. The data from these sensors is most often sensor fused during the pre-processing phase. This is because the accelerometer has a lot of noisy measurements but has no drift, because of earths center of gravity does not move. However, the data from a gyroscope has low noise but will drift over longer periods of time. The concept of sensor fusion is to combine the outputs from these sensors to estimate an output which has no drift and a higher signal-to-noise ratio. The sensor fusion will also calculate the unit’s orientation relative to the direction of gravity . The magnetometer can be combined to compute the heading of the sensor unit with respect to the magnetic north. The most common used filters are the Kalman filter and complementary filter .
+ found an acceptable level of validity using an early version of Catapult Sports tracking device, Minimax S4 when using a specific cut-off frequency for the signal filter. Furthermore,  concluded that the Catapult OptimEye S5 showed an excellent intradevice reliability but a low interdevice reliability, which means that it is essential that the same subject uses the same device and does not change it during a match or season. It also raises the question if the interdevice reliability is good enough to train machine learning models across several subjects.</p>
+<p>Machine learning is an automated mathematical process that finds patterns in data samples without being explicitly programmed to . It is possible for machine learning algorithms to identify complex patterns in recorded data from matches and training, which otherwise would take hours to do with manual video analysis. The most common method is supervised machine learning, where the algorithms classify unseen data based on a training dataset which is labelled with the ground truth .
+ had up to 92% accuracy when classifying locomotion in elite net ball players during a match using an IMU located between the shoulder blades, and  managed to get an accuracy between 98.4-100% depending on the complexity of the machine learning model, for turn directions in a controlled environment with the use of an IMU placed close to sacrum.  was looking at detecting and classifying scrummage events during rugby matches with an IMU placed between the shoulder blades, where they found a 91% accuracy to detect scrummage across both matches and training events. Furthermore,  found in their review, that the highest reported accuracy was in general above 90% for specific movements when combining machine learning with inertial data from an IMU.</p>
+<p>Handball specific research have also been done,  tried to detect different throws and estimate ball velocity in handball with an IMU placed on the dorsal side of the throwing arm. They found a 79-87% accuracy to classify throw type and an error of 1.1 m/s when detecting the ball velocity.</p>
+<p>However, care must be taken when interpreting these results. The methods may be difficult to apply in practice because of some shortcomings. Many of them uses a binary classification problem. As with  that classifies if a scrummage is occurring or not. In sports you are interested in many more classes than just if one of them is occuring or not.
+Another issue is the position of IMUs on the arms as done in . In invasion sports like handball, where players will push and pull each other frequently, an IMU on the arm will measure a lot of noise and it will also be harder to classify locomotion. This risk is vastly reduced when the IMU is placed between the scapula, where the most noise will probably come from pulling of the shirt.
+ shows yet another shortcoming. The data is recorded in a controlled and standardized environment which does not replicate the complexity of a real match setting.  have showed this in handball by executing a development study to train a machine learning algorithm to detect handball throws using an IMU strapped to the wrist, with data from a standardized situation and then tried to validate it in another study. In the development study their median best per-player sensitivity was 100%, this refers to the number of true positives classified. However, in the validation study the sensitivity fell to a median of 79%. This can maybe show the issues of collecting data in a standardized environment, instead of a real match. However, it is not known if this sensitivity would have been better or worse if they collected data from the validation study to train the model. Though,  investigated the real-world applicability of a support-vector machine (SVM) model developed with the use of IMU data. This was collected on participants, performing football shots and passes in a standardized laboratory setting. They found that the SVM model was not able to distinguish between the shots and passes when used in a real-world setting.
+Even though there is no study, to the best of the authors knowledge, that have verified the best procedure (standardized vs. real match) for training a machine learning algorithm in invasion sports, an argument can be made that training a model from a real match is superior. It contains more noise and random movements which would not be there in a standardized environment, and therefore the training data would resemble the real world application of the model more than the standardized environment.</p>
+<p>Another issue with machine learning is how they can often be seen as black boxes that does not explain their predictions in an understandable way. Therefore it is common to try to extract some of the trends in a model to get an understanding of the black box .
+Some of the most common ways of extracting the trends in classification problems is: Variable importance which shows the importance of a given variable / feature to make a predicting outcome, Partial Dependence Plots (PDPs) that plots the average prediction as a function of a changing feature, or Individual Conditional Expectation (ICE) plot, which is basicly the same as PDPs though it does not average the prediction but shows each sample separately.
+However, interpreting these must be taking with care since permute-and-predict methods can be misleading, especially if there is a significant correlation between features . Therefore, when interpreting these kind of trends in a machine learning model it will be seen as breadcrumbs to get a deeper understanding and not a direct explanation of a model.
+These trends will assist in creating a control flow / algorithm that can categorize movements in a handball match that is interpretable and therefore easier to explain for practitioners.</p>
+<p>The aim of this study was to develop an algorithm, that can classify events in a regular handball match with focus on throw and locomotion events, derived from supervised machine learning models trained on data collected by one IMU located between the scapulae on the upper back of each player.</p>
+<div style="page-break-after: always;"></div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+
+<a href="method.html" class="navigation navigation-next navigation-unique" aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"search": false,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

@@ -1,0 +1,566 @@
+---
+title: " "
+output: pdf_document
+header-includes:
+  - \usepackage{float}
+  - \usepackage{sectsty}
+editor_options: 
+  chunk_output_type: console
+---
+
+# The R code
+
+This section will go through some of the functions that have been made to clean, manage, manipulate and model the data for this project. Arguments will be made for why and how these functions have been used while presenting exemplatory results of how the functions have worked. Remember to read the comments inside the codeblocks to understand some of the choices that have been made. All of the code can be found on github: **INSERT LINK TO MY GITHUB WHEN IT IS READY**
+
+R and specifically tidyverse (a collection of R packages for data science) has two important features that should be noted to easier read the codeblocks presented. Most functions are named as verbs so it should be easy to rationalize what it does. The other feature is the pipe operator; *%>%*. When ever a pipe is present, read it as *"and then do"*. It basically pipes the previous object into the next function. 
+
+
+## Importing and cleaning the data 
+
+When FMP is exported from Catapults Vision Exporter tool it looks like table \@ref(tab:FMPexample)
+
+```{r FMPexample, echo = FALSE, out.width = "100%"}
+df <- data.table::fread("../Data/RawData/FMP_Thursday.csv", nrows = 5) %>% 
+  janitor::clean_names() %>% 
+  select(athlete, start_time, end_time, movement_type, duration)
+
+
+knitr::kable(df, format = "latex", align = "c", col.names = c("Athlete","startTime", "endTime", "movementType","duration [s]"),
+             caption = "Example output from Catapults Vision Exporter. Start and end time are time periods in unix time, movement type is the predicted football movement profile and duration is the length in seconds before a transition to a new movement type.") %>% 
+   kable_minimal() %>% 
+   kable_styling(latex_options = c("striped", "HOLD_position"))
+```
+
+The start and end time columns are the time period in unix time. The duration shows number of seconds the given FMP category has occured. For example, the first row indicates that *Low Intensity* occured for 3 s, then another 1 s before changing to *Dynamic Medium Intensity*. Another important observation is the jump in time between row 1 and row 2 where the data jumps 1 s and again between row 3 and row 4 where the data jumps 3 s. The reason for this is the lack of the *Very Low Intensity* category in the data set. Catapult chose to omit this category and use the duration column format to sparse the stored files in the cloud.
+
+Therefore, a function was created to lengthen the data to a 1Hz data set, and also pad the time gabs with the *Very Low Intensity* category, as can be seen in following codeblock.
+
+```{r cleanFMP, eval = TRUE, include=TRUE}
+cleanFMPdata <- function(data){
+  #This function will pad with "very low intensity" 
+  #when there is a time gab between rows.
+  #Furthermore it will expand / lengthen the data frame to 1hz data set.
+  
+  
+  #Create an index for easy sorting purposes later on. 
+  #Calculate time difference between end_time on row [i] 
+  #and start_time on row [i+1] in unix time
+  tableData <- data %>%  
+    select(athlete, start_time, end_time, movement_type, duration) %>% 
+    #Adding one hour to get the unix time to the correct time zone
+    mutate(start_time = start_time + 3600,
+           end_time = end_time + 3600,
+           ind = seq_len(nrow(.)),
+           timeDifference = floor(lead(start_time, 1) - end_time),
+           #Last row won't be able to find a difference, 
+           #therefore replace NA with 0.
+           timeDifference = replace_na(timeDifference, 0)) %>% 
+    arrange(start_time)
+  
+  
+  #Padding with "very low intensity" if the unixtime gap between 
+  #two adjacent rows is >= 1, and adding a 0.1 to the idx
+  #to correctly arrange the dataframe relative to the time.
+  for (i in 1:nrow(tableData)){
+    if (tableData[i]$timeDifference >= 1){
+      tableData <- rbind(tableData, data.frame(
+        athlete = tableData$athlete[i],
+        start_time = tableData$start_time[i],
+        end_time = tableData$end_time[i],
+        movement_type = "Very Low Intensity",
+        duration = tableData[i]$timeDifference,
+        ind = i+0.1, 
+        timeDifference = tableData[i]$timeDifference
+      ))
+    }
+  }
+  
+  #Create a nested vector with movement type times duration, 
+  #then unnest the vector to lengthen the dataframe to a pure 1hz dataset.
+  tableData <- tableData %>% 
+    arrange(ind) %>% 
+    mutate(movement_type = map2(movement_type, duration, ~rep(.x, .y))) %>% 
+    unnest_longer(movement_type)
+  
+  #fixing the unixTime now that we have a 1hz dataframe.
+  finishedTableData <- tableData %>% 
+    mutate(unixTime = seq(
+      from = .$start_time[[1]],
+      to = .$start_time[[1]] + nrow(tableData)-1,
+      by = 1)) %>% 
+    select(-c(duration, ind, timeDifference, start_time, end_time))
+  
+  return(finishedTableData) 
+}
+```
+
+The resulting data will look like table \@ref(tab:cleanedFMP)
+
+```{r cleanedFMP, echo = FALSE, out.width = "100%"}
+cleanDf <- cleanFMPdata(df)
+
+knitr::kable(cleanDf, format = "latex", align = "c", 
+             caption = "Example output from the full size data set.") %>% 
+   kable_minimal() %>% 
+   kable_styling(latex_options = c("striped", "HOLD_position"))
+```
+
+
+
+## Validation
+
+During the validation process of FMP the intensity part of the category was removed. 
+This was done by using regular expresions (regex) to remove parts of the word and then mutate the categories down to four: No locomotion, Walking, Dynamic and Running
+
+```{r changeFMP, eval = FALSE, include=TRUE}
+FMPTuesdayNIU2 <- data.table::fread("Data/ProcessedData/FMPTuesdayNIU2.csv") %>% 
+  #split movement type to get locomotion category and rename
+  mutate(locomotion = sub(' .*', '', movement_type),
+         locomotion = case_when(
+           locomotion == "Low" ~ "Walking",
+           locomotion == "Very" ~ "No locomotion",
+           TRUE ~ as.character(locomotion)
+         ))
+```
+
+
+After changing the categories, a function was created to create a truth-vector to verify the FMP with. This had to be done in respect to the right time periods and athletes for each of the controlled drills. It is important to note that "intensity" are used in the function but only used as a way of differentiating between the different drills and not related to the original FMP.
+ Following codeblock shows the function used.
+
+```{r, eval = FALSE, include=TRUE}
+locomotionFMPtruth <- function(FMPdata, eventIntensity, eventType, 
+                               athleteID = NULL, groupID, startTime, endTime){
+  
+  #securing capital first letter
+  eventIntensity <- tools::toTitleCase(eventIntensity)
+  eventType <- tools::toTitleCase(eventType)
+  
+  #AthleteID was used during the non-linear locomotion drill as only one
+  #Athlete attended at a time. During linear locomotion AthleteID were not used
+  #as everyone attended at the same time.
+  if (is.null(athleteID)) {
+    athleteID = FMPdata$athlete
+  }
+  
+  #Synchronizing the start and end time.
+  syncFMPData <- FMPdata %>% 
+    filter(athlete == athleteID,
+           unixTime >= startTime,
+           unixTime <= endTime) %>% 
+    arrange(athlete, unixTime)
+  
+  
+  #Creating new vector for the "truth" and the event "intensity".
+  FMPtruth <- syncFMPData %>% 
+    mutate(truth = eventType,
+           intensity = eventIntensity,
+           athlete = paste(groupID, athlete, sep = "_"))
+  
+  #Changing the character vectors to factors.
+  FMPtruth$truth <- factor(FMPtruth$truth, 
+                           levels = c("Dynamic", "Walking", 
+                                      "Running", "No locomotion"))
+  FMPtruth$locomotion <- factor(FMPtruth$locomotion, 
+                                levels = c("Dynamic", "Walking", 
+                                           "Running", "No locomotion"))
+  
+  return(FMPtruth)
+}
+
+#Example for Linear locomotion
+Tuesday_NIU2_Walk2 <- 
+  locomotionFMPtruth(FMPTuesdayNIU2, 
+                     eventIntensity = "low", 
+                     eventType = "Walking", 
+                     groupID = "TuesdayNIU2",
+                     startTime = "2022-02-15 08:31:10 UTC",
+                     endTime = "2022-02-15 08:31:53 UTC")
+
+#Example for non-linear locomotion
+Tuesday_NIU2_high_Yellow2 <- 
+  locomotionFMPtruth(FMPTuesdayNIU2, 
+                     eventIntensity = "high", 
+                     eventType = "Dynamic",
+                     athleteID = "Yellow-2", 
+                     groupID = "TuesdayNIU2",
+                     startTime = "2022-02-15 09:06:55 UTC",
+                     endTime = "2022-02-15 09:07:31 UTC")
+```
+
+After creating the truth-vector for all iterations of the controlled drills, each drill and its iterations would be concatenated into one dataframe before a percentage-agreement test was conducted. 
+See the next codeblock
+
+```{r, eval=FALSE, include=TRUE}
+LinearLocomotion10 <- rbind(Tuesday_NIU2_Run10,
+                            Tuesday_NIU3_Run10,
+                            Wednesday_NIU1_Run10)
+
+LinearLocomotion10Agree <- LinearLocomotion10 %>% 
+  select(truth, locomotion) %>% 
+  irr::agree(.)
+```
+
+## Improvement to FMP
+
+FMP is a proprietary algorithm within Catpault sports, which means that the source code is not openly available. Therefore, the changes that was applied to FMP would be performed directly on the FMP data and not on the raw acceleration data. Football consists of numerous changes of directions, accelerations and decelerations. Consequently, a linear locomotion can segue to a hard deceleration in an instant. Therefore, it was important to increase the window size of the FMP from 1 s to 0.5 s. A 0.5 s approach has been used before in the litteratur of human activity recognition, for example for daily tasks \citep{Chavarriaga2013} or falls \citep{Miller2022}. Furthermore, \citet{Dehghani2019} found window sizes between 0.25-1.25 s to be optimal for human activity recognition when creating aggregated features for the feature engineering process. Consequently, the present project opted for a window size equal to 0.5 s.
+
+To increase the frequency, each of the rows would be duplicated relative to each athlete for each group and set in correct order relative to time while also calculating a new time vector as can be seen in the next codeblock.
+
+```{r, eval=FALSE, include=TRUE}
+FMPTuesdayNIU2 <- FMPTuesdayNIU2 %>% 
+  group_by(athlete) %>% 
+  #Slice subset rows using their position, and rep() replicates values
+  #So it takes the first row and replicates it once, 
+  #before jumping to the next row.
+  slice(rep(1:n(), each = 2)) %>% 
+  mutate(time = 1:n()) %>% 
+  ungroup()
+```
+
+## Remove inactive players
+
+During the specific football drills, some players were inactive and sat on the sideline. Instead of manually removing the correct players during each drill a short function was applied that detects inactivity during the drill.
+This was done by removing players which had more than 90% of FMP to be *Very Low Intensity* and *Low Intensity*. After applying the function the results would be verified with the video material to see if the correct athletes was detected. It is therefore important to mention that the 90% threshold is specific and arbitrary to this data collection and is not a general threshold for activity recognition. 
+
+```{r, eval=FALSE, include=TRUE}
+removeInactivePlayers <- function(data){
+  
+  #Create unique ID for each athlete, for each drill and its iteration
+  data$ID <- paste0(data$athlete, data$drillType, data$drillCounter, sep = "_")
+  
+  InactivePlayer <- data
+  #Recode the two categories Low intensity and very low intensity to one category 
+  InactivePlayer$movement_type <- recode(data$movement_type, 
+                                         "Low Intensity" = "Low Locomotion",
+                                         "Very Low Intensity" = "Low Locomotion")
+  
+  #Calculate the percentage distribution of each category in drills of interest
+  #Then filter
+  findInactivePlayer <- InactivePlayer %>%
+    filter(drillType != "downtime") %>% 
+    group_by(ID) %>% 
+    count(movement_type) %>% 
+    mutate(percent = n/sum(n)) %>% 
+    ungroup() %>% 
+    filter(percent >= 0.9 & movement_type == "Low Locomotion")
+  
+  data <- data %>% 
+    filter(ID %!in% findInactivePlayer$ID)
+  
+  
+  return(data)
+  
+}
+```
+
+# Technology Theory
+
+This section will go through some of the existing technologies that have been used to catagorize physical activity and showcase their usecases and shortcommings. All the hardware technologies that have been used during this project were part of the Catapult Sports IMUs. 
+
+The Catapult Vector X7 consists of five different technologies; accelerometer, gyroscope, magnetometer, global positioning system (GPS) and a local positioning system (LPS). The first three technologies when put together are also called an Inertial Measurement Unit (IMU). These are responsible for measuring linear accelerations and angular rotations, where the magnetometer is used to compute the heading of the sensor unit. 
+The data from the different parts of the IMU is often sensor-fused to increase the validity of the measured data. This is due to some inherent shortcomings within the accelerometer and gyroscope when they are alone. The accelerometer has a lot of noisy measurements, but has no drift in the data as it is reliant on the earth's center of gravity. The gyroscope on the other hand has low noise, but it will drift over time. The sensor-fusion is a way to combine these measurements to make it more reliable with no drift and higher signal-to-noise ratio, while also calculating the unit's orientation \citep{Kelly2010, Li2019}. The filters for applying these fusions is most commonly the Kalman filter or the complementary filter \citep{Valenti2015, Roell2018}.
+
+In addition, it is generally adviced to use a detrend algorithm to remove the trends (eg: drift) that can occur in the accelerometer and gyroscope data \citep{Li2019}. Though, it is not known if Catapult Sports does this prior to calculating the FMP categories. However, an earlier semester thesis investigated the impact of a detrend algorithm on the raw data, and as can be seen in figure \@ref(fig:trendGrid) the detrend had very low impact, which suggests the proprietary kalman filter used, might have taken care of the drift (Lentz-Nielsen, 2021). 
+
+```{r trendGrid, fig.cap = "First tree plots shows the accelerometer data in forward direction, first shows the raw data, second plot shows the data when when the trend is removed, and third shows the differentiation between them. Same goes for the last 3 plots which represents the gyroscope data (Lentz-Nielsen, 2021).", echo = FALSE, out.width = "80%", fig.align = "center"}
+knitr::include_graphics("img/trendGrid.png")
+```
+
+The GPS is among the most used system in sports tracking \citep{Aughey2011}. Catapult Sports GPS, samples at 10Hz and determines distance from positional differentiation and velocity from the Doppler shift technique.
+It has shown to have great validity for outdoor team sports with a sampling frequency of minimum 10Hz \citep{Scott2016, Johnston2014}. Furthermore, \citet{Petersen2009} also found that the reliability of the GPS was independent on the time of day, which is essential as sports teams train at different times in outdoor conditions. The biggest drawbacks for the GPS system is its reliance on satellite connection which means that indoor sports, or closed off stadiums will not be able to utilize the technology properly. An alternative is the LPS, which works in the same manner as a GPS system, except it connects to locally positioned satellites (see figure \@ref(fig:satellites)). The Catapult Sports Clearsky T6 have been validated and shows low errors in optimal settings relative to a motion capture system. Though, the measurements for instantaneous speeds is not valid \citep{Luteberget2018a}.
+The other drawback for the GPS which is also found in the LPS is the lack of eucledian vectors when measuring velocity. Consequently, the velocity vectors does not have a direction, which linear accelerometer data from accelerometers does. 
+
+<!-- The quality of the GPS data was still high during data collection inside the tent (> 6 satellites, < 1 HDOP) \citep{Malone2017} with only very few critical samples, as can be seen in figure \@ref(fig:gpsQuality).  -->
+
+<!-- ```{r gpsQuality, fig.cap = "Top plots showing the Horizontal Dilution of Precision (HDOP). Bottom plot showing the number of sattelites connected to the GPS.", echo = FALSE, out.width = "100%", fig.align = "center"} -->
+<!-- knitr::include_graphics("img/gpsQuality.jpeg") -->
+<!-- ``` -->
+
+
+```{r satellites, fig.cap = "Catapult Sports Clearsky LPS satellite.", echo = FALSE, out.width = "70%", fig.align = "center"}
+knitr::include_graphics("img/LPSsat.jpg")
+```
+
+## Signal filtering
+
+The FMP is based on a propitiatory algorithm within Catapult Sports, which is not openly available. Consequently, the signal processing procedure of the IMU data is not known and can not be altered. This is an academic issue, as it makes it impossible to replicate or even verify the decisions that have been made in the algorithm. Even in the academic literature cut-off frequencies for signal filtering are often arbitrarily selected which may cause issues as each data set is highly dependent on the data collection method and the participating subjects as these can effect the artefacts showing in the data. Furthermore, there are several different ways of calculating a frequency cut-off which all results in different values \citep{Fazlali2020}. 
+
+\citet{Wundersitz2015} found the Minimax S4 (early version of Catapult Sports IMU product) positioned on the trunk to be valid in team sports when sampling at 100Hz and using a zero-lag low-pass butterworth filter with a cut-off of 12Hz. Where, \citet{Miller2022} investigated postural perturbations when walking on a treadmill, also using an IMU on the trunk. They found that a cut-off frequency of 35 $\pm$ 10 Hz for linear accelerations and 26 $\pm$ 7 Hz for angular velocity to be the best when basing it on the 99% energy spectrum analysis. These differences in chosen cut-offs indicates a need to investigate the frequency domain for each data collection as it can depend on athletes, practices activity and hardware.
+
+Figure \@ref(fig:filtExample) clearly shows the implications of different cut-off frequencies. These filters have been made with a 2nd Order zero-lag butterworth filter with 35-, 12-, and 6Hz filters to showcase the difference in the time domain. Because the filters are not openly available for propitiatory software it is important to always declare the software and firmware version used in data collections, as the approach can change without the user knowing.
+
+
+```{r, echo = FALSE}
+df100 <- data.table::fread("../Data/RawData/100hz_NIU2_Tuesday/NIU2 Yellow-2_events_20220215_080337_RN1592327739.csv") %>% 
+  janitor::clean_names() %>% 
+  select(date_time, acceleration_forward, acceleration_up, acceleration_side) %>% 
+  mutate(date_time = as.POSIXct(date_time, format = "%d/%m/%Y%H:%M:%S", tz = "UTC"),
+         unixTime = as.numeric(date_time) + 3600,
+         time = 1:n()) %>% 
+  arrange(unixTime)
+
+fs = 100
+wAcc = 6 / (fs/2)
+bfAcc <- signal::butter(n = 2, W = wAcc, type = "low")
+
+dfFilt_6 <- df100 %>% 
+    mutate(across(c(acceleration_forward, acceleration_up, acceleration_side), ~ signal::filtfilt(bfAcc, .x)),
+           index = row_number())
+
+wAcc = 12 / (fs/2)
+bfAcc <- signal::butter(n = 2, W = wAcc, type = "low")
+
+dfFilt_12 <- df100 %>% 
+    mutate(across(c(acceleration_forward, acceleration_up, acceleration_side), ~ signal::filtfilt(bfAcc, .x)),
+           index = row_number())
+
+wAcc = 35 / (fs/2)
+bfAcc <- signal::butter(n = 2, W = wAcc, type = "low")
+
+dfFilt_35 <- df100 %>% 
+    mutate(across(c(acceleration_forward, acceleration_up, acceleration_side), ~ signal::filtfilt(bfAcc, .x)),
+           index = row_number())
+
+df100$forward_6 <- dfFilt_6$acceleration_forward
+df100$forward_12 <- dfFilt_12$acceleration_forward
+df100$forward_35 <- dfFilt_35$acceleration_forward
+```
+
+```{r, echo = FALSE}
+df_long <- df100[1:50000] %>% 
+  pivot_longer(cols = c(acceleration_forward, forward_6, forward_12, forward_35))
+
+df_long$name <- factor(df_long$name, 
+                       levels = c("acceleration_forward","forward_35","forward_12","forward_6"))
+```
+
+```{r filtExample, echo = FALSE, fig.cap = "Example of the linear acceleration data for sagital movement. Showing the results of a zero-lag 2nd order butterworth filter with three different cut-offs relative to the raw data."}
+ggthemr::ggthemr("greyscale")
+df_long %>% 
+  mutate(time_min = (time / 100) / 60) %>% 
+  ggplot(aes(x = time_min, y = value, fill = name)) +
+  geom_line() + 
+  facet_wrap(~name, labeller = labeller(name = c("acceleration_forward" = "Raw", 
+                                                "forward_35" = "35Hz filter",
+                                                "forward_12" = "12Hz Filter", 
+                                                "forward_6" = "6Hz Filter"))) + 
+  xlab("time [min]") + 
+  ylab("Acceleration [m/s^2]") + 
+  ggtitle("Acceleration for forward movement")
+```
+
+# Interrater reliability
+
+To measure the agreement between the FMP and the executed drills an interrater reliability test is needed. One of the more simple tests for this, is the overall percentage agreement test:
+
+\begin{align*}
+100 \cdot \frac{Agreement}{Total}
+\end{align*}
+
+Though, the percentage agreement test does not take into account the chance for random agreements occuring. For this reason cohen's kappa is the more commonly used test for categorical variables in social and medical sciences \citep{Chicco2021}.
+
+\begin{align*}
+p_e = \frac{1}{N^2} \sum n_{k1} n_{k2}\\
+\kappa = \frac{p_o - p_e}{1 - p_e}
+\end{align*}
+
+$p_o$ is the observed agreement, $p_e$ is the hypothetical probability for the chance that agreement occurs, where N is observations and $n_{nki}$ is the number of times a rater predicted $k$.
+
+However, according to \citet{Delgado2019} and \citet{Chicco2021}, Kappa has issues with imbalanced datasets in machine learning classifications and suffers from the *prevalence paradox* and the *bias paradox*. The *prevalence paradox* derives when $p_e$ among raters is high and even high values of the relative observed agreement results in low Kappa values. The *bias paradox* derives if the marginal distribution of the confusion matrix is imbalanced which produces higher Kappa values. **Therefore it has been recommended to start using Matthews Correlation Coefficient as an addition to Cohen's Kappa as performance metrics for classification problems within machine learning. These recommendation is based on how these metrics are calculated based on a confusion matrix and are not directed at interrater agreement tests.** Nonetheless, the formula for Cohen's kappa for interrater agreement and for 2 x 2 confusion matrix predictions produces the same results, as can be seen in the following example:
+
+
+|         |     | True | True |
+|---------|-----|------|------|
+|         |     | yes  | no   |
+| Predict | yes | 25   | 10   |
+| Predict | no  | 15   | 20   |
+
+This can also be seen as:
+
+|         |     | True | True |
+|---------|-----|------|------|
+|         |     | yes  | no   |
+| Predict | yes | True Positive (TP)   | False Positive (FP)   |
+| Predict | no  | False Negative (FN)   | True Negative (TN)  |
+
+The *True* and *predict* can be seen as two seperate raters, though for the controlled drills, from this thesis, we know the objective truth. 
+If we calculate the agreement test for Kappa based on the aforementioned formula we get the following:
+
+\begin{align*}
+p_o = (25+20) / 70\\
+p_{yes} = ((25+10/70) \cdot ((25+15)/70)\\
+p_{no} = ((15+20)/70) \cdot ((10+20)/70)\\
+p_e = p_{yes} + p_{no}\\
+\kappa = \frac{p_o - p_e}{1 - p_e}\\
+\kappa = 0.285714
+\end{align*}
+
+The formula for Kappa in binary classifications for confusion matrices:
+\begin{align*}
+\kappa = \frac{2 \cdot (TP \cdot TN - FN \cdot FP)}{(TP + FP) \cdot (FP + TN) + (TP + FN) \cdot (FN + TN)}\\
+\kappa = \frac{2 \cdot (25 \cdot 20 - 15 \cdot 10)}{(25 + 10) \cdot (10 + 20) + (25 + 15) \cdot (15 + 20)}\\
+\kappa = 0.285714
+\end{align*}
+
+This was just an example of the calculations, a simulation is created that shows it is always the same to the fourth digit in sub-section *Simulation example of the two kappas*.
+
+As stated previously, in machine learning both Cohen's Kappa and Matthews Correlation Coefficient (MCC) has been used in the literature as performance metrics. Both of them are reliant on a confusion matrix and even though (to the best of the authors knowledge) the MCC has never been used for interrater reliability test, it seems transferable to interrater agreement tests, as the only difference between MCC and Cohen's Kappa is their use of either the geometric or the harmonic mean, respectively.
+
+\begin{align*}
+MCC = \frac{TP \cdot TN - FN \cdot FP}{\sqrt{(TP + FP) \cdot (FP + TN) + (TP + FN) \cdot (FN + TN)}}\\
+\end{align*}
+
+**Therefore, it was the intention to use the MCC for the agreement test in this study. The original plan was to have three trained raters to label the controlled and specific drills for validation purposes. However, because of unforeseen circumstances this was not possible. As a result only the controlled drills were used for validation testing where each drill only had one objective truth. Because of this, each controlled drill would only have one category, eg: Linear locomotion or non-linear locomotion, which would result in a zero in atleast one of the four quadrants in the confusion matrix and the MCC and kappa would not be computed. Therefore, the percentage-agreement test was used as a substitute.**
+
+
+## Simulation example of the two kappas \label{simulation}
+
+```{r}
+kappaAgreement <- function(TP, FP, TN, FN){
+  #agreement calculation based on the interrater-agreement
+  #formula for cohens kappa
+  summ = TP+FP+TN+FN
+  
+  po = (TP+TN) / summ
+  pyes = ((TP+FP)/summ) * ((TP+FN)/summ)
+  pno = ((FN+TN)/summ) * ((FP+TN)/summ)
+  pe = pyes + pno
+  k = (po - pe) / (1-pe)
+  
+  return(k)
+}
+
+kappaClassification <- function(TP,FP,TN,FN){
+  #binary classification formula for cohens kappa
+  ktop = 2*(TP*TN - FN * FP)
+  kbot = (TP+FP)*(FP+TN)+(TP+FN)*(FN+TN)
+  k = ktop / kbot
+  
+  return(k)
+}
+
+#creating a dataframe
+resultDf <- tibble(agreement = NA, 
+                   classification = NA)
+
+#100 iterations with different TP,FP,TN,FN values
+for (i in 1:101){
+#Setting a seed to make it replicateable, but still changing the seed
+#for each iteration, so it won't produce identical results
+
+set.seed(123+i)
+#random number generation
+TP = as.integer(runif(1, 10, 50))
+FP = as.integer(runif(1, 10, 50))
+TN = as.integer(runif(1, 10, 50))
+FN = as.integer(runif(1, 10, 50))
+
+result1 <- round(kappaAgreement(TP,FP,TN,FN), 4)
+result2 <- round(kappaClassification(TP,FP,TN,FN),4)
+
+resultDf <- rbind(resultDf, result1, result2)
+}
+
+#removing the first NA values, and removing duplicate rows
+resultDf <- resultDf %>% 
+  distinct() %>% 
+  na.omit()
+
+#Boolean test, if TRUE it means the values are the same.
+resultDf$agreement == resultDf$classification
+
+```
+
+# Machine learning
+
+This section will go through some of the machine learning techniques that have been used in the project. Primarily; Feature Engineering, Feature Selection and Modelling procedures. 
+
+## Feature Engineering
+
+The only new features that were made was based on an N-gram approach. N-gram is a method within natural language processing that pairs adjacent words into categories, where N is the number of words of interest \citep{Silge2017}. For example, given the following sentence: "I bought a white house", using a bigram (2-gram) approach would result in the following four bigrams: "I bought", "bought a", "a white", "white house". This can be extended to trigram (3-gram), quadgram (4-gram) and so on. 
+
+The relative distribution of FMP, bigram, trigram and quadgram were used for each athlete in respect to each drill and its iteration. These distributions was used to investigate differences between drills while also being used for the predictive modelling. Function to calculate the FMP can be seen in following the codeblock.
+
+```{r, eval = FALSE, include = TRUE}
+calculatengram <- function(dataframe, ngram){
+  
+  #Creating an empty dataframe
+  allGrams <- tibble()
+  
+  #Iterating through the athletes in the dataframe, and selecting
+  #one athlete at a time. Also creating new variable the can identify
+  #the correct athlete to the drill and the iteration of that drill
+  for (i in unique(dataframe$athlete)){
+    subject <- dataframe %>% 
+      filter(athlete == i) %>% 
+      mutate(drillID = paste(drillType, drillCounter, sep="_"))
+    
+    
+    #Filter based on the newly created drill ID and calculate the n-gram
+    for (j in unique(subject$drillID)){
+      subject_drill <- subject %>% 
+        filter(drillID == j)
+      
+      #Create new dataframe with the n-grams.
+      tempTibble <- tibble(
+        longNewFMP = paste(subject_drill$newFMP, collapse = " ")) %>% 
+        tidytext::unnest_tokens(gram, longNewFMP, token = "ngrams", n = ngram)
+      
+      #Insert NA at ngram-1 rows to have correct length
+      naValues <- tibble(naTest = rep(NA, ngram-1))
+      tempTibble <- bind_rows(naValues, tempTibble) %>% 
+        select(gram)
+      tempTibble$athlete = i 
+      
+      allGrams <- rbind(allGrams, tempTibble)
+    }
+  }
+  return(allGrams)
+}
+```
+
+## Feature selection
+
+Calculating the relative distribution of FMP and three different n-grams results in a large feature space (Number of features > number of observations). A reduction of the feature space was needed to remove the noisy features and keep the once that assisted in prediction. "Variable Selection Using Random Forest" (VSURF) utilizes random forests to choose which features to keep or omit \citep{Genuer2010, Genuer2015}.
+By removing the noisy features not only does it increase the prediction accuracy, but it will also decrease the final computational time of the modelling algorithm. 
+
+VSURF has several steps to classify the most important features. The first step orders the features from the most important to the least important. Importance are based on permutation instead of gini impurity because of higher reliability \citep{Genuer2010, Hooker2021}. Hereafter, the standard deviation is computed for the variable importance and a "Classification and Regression Tree" (CART) model calculates the minimum prediction value which are used as a threshold to eliminate features. 
+
+The second step select features that are highly related to the response variable. The remaining features from the first step, was selected in order of importance based on a forward step-wise method, which means it adds one feature at a time. Then 25 random forests was computed to calculate the out-of-bag error and the nested models with the lowest error was selected. 
+The last step selected variables based on a good parsimonious prediction of the response feature. Like before a forward step-wise method was used to select features above a threshold. For this step the threshold was the error decrease needed to be significantly greater than the averaged variation from noisy variables \citep{Genuer2010, Genuer2015}.
+
+## Data resampling
+
+Resampling is a technique used to equalize the distribution between the classes of interest prior to training a machine learning algorithm., this can be an important tool since a skewed distribution can bias the trained algorithm. Two of the most simple ways of resampling is simply to upsample the classes with fewer occurences to the one with the most, or downsample the classes with more occurences to the one with the least. Up- and downsampling randomly dublicates or removes data in the dataset \citep{Burkov2019}.
+
+A more complex upsampling method was used during this study. \citet{He2008} describes an *Adaptive Synthetic Sampling Approach* (ADASYN) to upsample data which is based on \citet{Chawla2002} work on a *Synthetic Minority Over-sampling Technique* (SMOTE). The basic idea behind SMOTE is to synthesize the minority classes using an K-nearest neighbor algorithm and insert the new synthesized classes along a specific line segment for that class (see figure \@ref(fig:SMOTE)). 
+
+```{r SMOTE, fig.cap = "Concept of SMOTE showing how the synthesized data points is placed along the line segment.", echo = FALSE, out.width = "80%", fig.align = "center"}
+knitr::include_graphics("img/smoteExample.png")
+```
+
+ADASYN is expanding on this by focusing on a weighted distribution for each data point from the minority class, relative to how difficult that data point is distinguishable from the other classes. ADASYN then upsamples the data points with the highest weighting, eg. hardest to distiguish (see figure \@ref(fig:ADASYN))
+
+```{r ADASYN, fig.cap = "Difference between SMOTE and ADASYN upsampling. Notice how the purple class in between the green and yellow is upsampled more for ADASYN.", echo = FALSE, out.width = "100%", fig.align = "center"}
+knitr::include_graphics("img/smoteVadasyn.png")
+```
+
+## Hyperparameter tuning
+
+Hyperparameter tuning is the tuning of the learning parameters in a machine learning model to make it as good  as possible for the given training data without overfitting. Examples of hyperparameters could be, number of trees or depth of each tree in a random forest model, or the polynomial degrees in a support vector machine. To tune the hyperparameters a k-fold cross validation method was chosen for its small bias \citep{Kuhn2014}. K-fold cross-validation splits the data into K-folds where
+the model will be trained on the k-1 folds and validated with the fold that was left out. Hereafter, the folds rotate so a model will be trained ten times and validated to ten different folds \citep{Santos2018}.
+
+After the data is split up in k-folds, normally a grid search strategy would be used to identify the best hyperparameters. However, this method has computational shortcomings as it treats each parameter solution equally before attempting to do the next combination. Therefore, a futility analysis approach was conducted with repeated-measures ANOVA statistics to eliminate parameter combinations that would be unlikely to yield the best result. The benefit of this approach is decreased computational time \citep{Kuhn2014}.
+
+## Random forest
+
+Random forest models consist of an ensemble of trained decision trees. To do this a technique called Bootstrap aggregation (bagging) is used. This results in several decision trees being trained based on a bootstrapped (a random resampling) set of the data set. The number of trees trained depends on the hyperparameter setting as mentioned earlier. All the classifications from the trees is then aggregated based on the total number of class predictions across the trees \citep{Burkov2019, Geron2019}
+
+
+# Prozone and intensity zones
+
+Maybe present the litterature on the velocity intensity zones, to increase the strength of my argument that it is "arbitraried" picked in the litterature.
+
+
+
+

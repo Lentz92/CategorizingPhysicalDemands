@@ -1,0 +1,159 @@
+---
+title: " "
+output:
+  bookdown::pdf_document2:
+    latex_engine: xelatex
+    toc: FALSE
+    number_sections: false
+  bookdown::gitbook:
+  bookdown::word_document2:
+geometry: "left = 2.5cm, right = 2.5cm, top = 2.5cm, bottom = 2.5cm"
+fontsize: 11pt
+linestretch: 1.5
+toc-depth: 1
+header-includes:
+  - \usepackage{fontspec}
+  - \usepackage[T1]{fontenc}
+  #- \setmainfont{Garamond}
+  - \usepackage{float}
+  - \usepackage{sectsty}
+  - \usepackage{paralist}
+  - \usepackage{fancyhdr}
+  - \usepackage{lastpage}
+  - \usepackage{dcolumn}
+  - \usepackage{natbib}\bibliographystyle{agsm}
+  - \usepackage[nottoc, numbib]{tocbibind}
+  - \floatplacement{figure}{H}
+bibliography: bibliography.bib
+---
+    
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(kableExtra)
+library(tidyverse)
+```
+
+\allsectionsfont{\centering}
+\subsectionfont{\raggedright}
+\subsubsectionfont{\raggedright}
+
+\pagenumbering{gobble}
+
+\begin{centering}
+\vspace{3cm}
+
+```{r uni_logo, echo = FALSE, out.width = "20%"}
+knitr::include_graphics("img/aaulogo.png")
+```
+
+\vspace{1cm}
+
+\Huge
+{\bf Work Sheet} \\
+
+\Large
+{\it A detailed description of certain methodological topics, including problems and thoughts, will be presented in the following worksheet} \\
+
+
+\vspace{1cm}
+
+\Large
+\doublespacing
+{\bf A new way of measuring loading in team sports} \\
+\large
+{\bf Using locomotion categories to predict drill types} \\
+
+
+
+\vspace{1 cm}
+
+\normalsize
+\singlespacing
+By
+
+\vspace{0.5 cm}
+
+\Large
+
+{\bf Nicki Lentz-Nielsen}
+
+\vspace{1.5 cm}
+
+This project - or parts thereof - may only be published \\ with the student's permission, cf. The Copyright act of 31.05.1961
+
+\vspace{1.5 cm}
+
+\normalsize
+Master in Sports Technology \\
+Master Thesis  \\
+Delivery deadline: 01-06-2022
+
+\end{centering}
+
+\newpage
+\pagenumbering{gobble}
+
+
+<!-- \begin{abstract} -->
+
+<!-- Short and concise abstract -->
+
+
+<!-- \end{abstract} -->
+
+\pagenumbering{roman}
+ 
+\newpage
+
+\centering
+\raggedright
+\newpage
+\tableofcontents
+
+
+\newpage
+
+```{r acknowledgments, child='acknowledgments.Rmd'}
+```
+
+\newpage
+
+\pagenumbering{arabic}
+
+```{r work, child = '00-worksheet.Rmd'}
+```
+
+<!-- \newpage -->
+
+<!-- ```{r intro, child = '01-introduction.Rmd'} -->
+<!-- ``` -->
+
+<!-- \newpage -->
+
+<!-- ```{r methods, child = '02-methods.Rmd'} -->
+<!-- ``` -->
+
+<!-- \newpage -->
+
+<!-- ```{r results, child = '03-results.Rmd'} -->
+<!-- ``` -->
+
+<!-- \newpage -->
+
+<!-- ```{r discussion, child = '04-discussion.Rmd'} -->
+<!-- ``` -->
+
+<!-- \newpage -->
+
+<!-- ```{r conclusion, child = '05-conclusion.Rmd'} -->
+<!-- ``` -->
+
+<!-- \newpage -->
+
+```{r bibliography, child = 'bibliography.Rmd'}
+```
+
+<!-- \newpage -->
+
+<!-- ```{r appendix, child = 'appendix.Rmd'} -->
+<!-- ``` -->

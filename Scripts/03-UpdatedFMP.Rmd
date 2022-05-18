@@ -1,0 +1,351 @@
+---
+title: "03-UpdatedFMP"
+author: "Nicki lentz"
+date: "`r Sys.Date()`"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+#Libraries and data import
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+'%!in%' <- function(x,y)!('%in%'(x,y))
+
+#Expanding the FMP to be 2h data by replicating each row and creating a tentative time vector
+#Which makes each row 0.5s instead of 1s
+FMPTuesdayNIU2 <- data.table::fread("Data/ProcessedData/FMPTuesdayNIU2.csv") %>% 
+  group_by(athlete) %>% 
+  slice(rep(1:n(), each = 2)) %>% 
+  mutate(time = 1:n()) %>% 
+  ungroup() %>% 
+  mutate_if(is.character, as_factor)
+
+FMPTuesdayNIU3 <- data.table::fread("Data/ProcessedData/FMPTuesdayNIU3.csv") %>% 
+  group_by(athlete) %>% 
+  slice(rep(1:n(), each = 2)) %>% 
+  mutate(time = 1:n()) %>% 
+  ungroup() %>% 
+  mutate_if(is.character, as_factor)
+
+FMPWednesdayNIU1 <- data.table::fread("Data/ProcessedData/FMPWednesdayNIU1.csv") %>% 
+  group_by(athlete) %>% 
+  slice(rep(1:n(), each = 2)) %>% 
+  mutate(time = 1:n(),
+         drillType = case_when(
+           unixTime >= 1645002419 & unixTime <= 1645002669 ~ "16_x_12",
+           unixTime >= 1645002930 & unixTime <= 1645003029 ~ "22_x_12",
+           unixTime >= 1645003074 & unixTime <= 1645003292 ~ "22_x_12",
+           TRUE ~ "downtime",
+         ),
+         drillCounter = case_when(
+           unixTime >= 1645002419 & unixTime <= 1645002669 ~ 1,
+           unixTime >= 1645002930 & unixTime <= 1645003029 ~ 1,
+           unixTime >= 1645003074 & unixTime <= 1645003292 ~ 2,
+           TRUE ~ 0,)) %>% 
+  ungroup() %>% 
+  mutate_if(is.character, as_factor)
+
+FMPThursdayNIU2 <- data.table::fread("Data/ProcessedData/FMPThursdayNIU2.csv") %>% 
+  group_by(athlete) %>% 
+  slice(rep(1:n(), each = 2)) %>% 
+  mutate(time = 1:n(),
+         drillType = case_when(
+           unixTime >= 1645087356 & unixTime <= 1645087471 ~ "Big_drill",
+           unixTime >= 1645087575 & unixTime <= 1645087692 ~ "Big_drill",
+           unixTime >= 1645087809 & unixTime <= 1645087912 ~ "Big_drill",
+           unixTime >= 1645087997 & unixTime <= 1645088081 ~ "Big_drill",
+           unixTime >= 1645088176 & unixTime <= 1645088278 ~ "Big_drill",
+           unixTime >= 1645088363 & unixTime <= 1645088460 ~ "Big_drill",
+           unixTime >= 1645088870 & unixTime <= 1645088954 ~ "16_x_12",
+           unixTime >= 1645088996 & unixTime <= 1645089088 ~ "16_x_12",
+           unixTime >= 1645089160 & unixTime <= 1645089246 ~ "16_x_12",
+           unixTime >= 1645089289 & unixTime <= 1645089380 ~ "16_x_12",
+           unixTime >= 1645089436 & unixTime <= 1645089522 ~ "16_x_12",
+           TRUE ~ "downtime",
+         ),
+         drillCounter = case_when(
+           unixTime >= 1645087356 & unixTime <= 1645087471 ~ 1,
+           unixTime >= 1645087575 & unixTime <= 1645087692 ~ 2,
+           unixTime >= 1645087809 & unixTime <= 1645087912 ~ 3,
+           unixTime >= 1645087997 & unixTime <= 1645088081 ~ 4,
+           unixTime >= 1645088176 & unixTime <= 1645088278 ~ 5,
+           unixTime >= 1645088363 & unixTime <= 1645088460 ~ 6,
+           unixTime >= 1645088870 & unixTime <= 1645088954 ~ 1,
+           unixTime >= 1645088996 & unixTime <= 1645089088 ~ 2,
+           unixTime >= 1645089160 & unixTime <= 1645089246 ~ 3,
+           unixTime >= 1645089289 & unixTime <= 1645089380 ~ 4,
+           unixTime >= 1645089436 & unixTime <= 1645089522 ~ 5,
+           TRUE ~ 0,)) %>% 
+  ungroup() %>% 
+  mutate_if(is.character, as_factor)
+
+FMPThursdayNIU3 <- data.table::fread("Data/ProcessedData/FMPThursdayNIU3.csv") %>% 
+  group_by(athlete) %>% 
+  slice(rep(1:n(), each = 2)) %>% 
+  mutate(time = 1:n(),
+         drillType = case_when(
+           unixTime >= 1645093759 & unixTime <= 1645093950 ~ "16_x_12",
+           unixTime >= 1645094044 & unixTime <= 1645094122 ~ "16_x_12",
+           unixTime >= 1645094174 & unixTime <= 1645094249 ~ "16_x_12",
+           unixTime >= 1645094292 & unixTime <= 1645094370 ~ "16_x_12",
+           unixTime >= 1645094440 & unixTime <= 1645094521 ~ "16_x_12",
+           unixTime >= 1645094585 & unixTime <= 1645094664 ~ "16_x_12",
+           unixTime >= 1645094709 & unixTime <= 1645094785 ~ "16_x_12",
+           unixTime >= 1645094887 & unixTime <= 1645094963 ~ "22_x_12_a",
+           unixTime >= 1645095013 & unixTime <= 1645095095 ~ "22_x_12_a",
+           unixTime >= 1645095136 & unixTime <= 1645095213 ~ "22_x_12_a",
+           unixTime >= 1645095417 & unixTime <= 1645095520 ~ "22_x_12_b",
+           unixTime >= 1645095571 & unixTime <= 1645095677 ~ "22_x_12_b",
+           unixTime >= 1645095739 & unixTime <= 1645095846 ~ "22_x_12_b",
+           TRUE ~ "downtime",
+         ),
+         drillCounter = case_when(
+           unixTime >= 1645093759 & unixTime <= 1645093950 ~ 1,
+           unixTime >= 1645094044 & unixTime <= 1645094122 ~ 2,
+           unixTime >= 1645094174 & unixTime <= 1645094249 ~ 3,
+           unixTime >= 1645094292 & unixTime <= 1645094370 ~ 4,
+           unixTime >= 1645094440 & unixTime <= 1645094521 ~ 5,
+           unixTime >= 1645094585 & unixTime <= 1645094664 ~ 6,
+           unixTime >= 1645094709 & unixTime <= 1645094785 ~ 7,
+           unixTime >= 1645094887 & unixTime <= 1645094963 ~ 1,
+           unixTime >= 1645095013 & unixTime <= 1645095095 ~ 2,
+           unixTime >= 1645095136 & unixTime <= 1645095213 ~ 3,
+           unixTime >= 1645095417 & unixTime <= 1645095520 ~ 1,
+           unixTime >= 1645095571 & unixTime <= 1645095677 ~ 2,
+           unixTime >= 1645095739 & unixTime <= 1645095846 ~ 3,
+           TRUE ~ 0,)) %>% 
+  ungroup() %>% 
+  mutate_if(is.character, as_factor)
+
+```
+
+# Find players that is inactive during drills (above 90% low + very low intensity)
+
+```{r}
+removeInactivePlayers <- function(data){
+  
+  data$ID <- paste0(data$athlete, data$drillType, data$drillCounter, sep = "_")
+  
+  InactivePlayer <- data
+  InactivePlayer$movement_type <- recode(data$movement_type, 
+                                         "Low Intensity" = "Low Locomotion",
+                                         "Very Low Intensity" = "Low Locomotion")
+  
+  findInactivePlayer <- InactivePlayer %>%
+    filter(drillType != "downtime") %>% 
+    group_by(ID) %>% 
+    count(movement_type) %>% 
+    mutate(percent = n/sum(n)) %>% 
+    ungroup() %>% 
+    filter(percent >= 0.9 & movement_type == "Low Locomotion")
+  
+  data <- data %>% 
+    filter(ID %!in% findInactivePlayer$ID)
+  
+  
+  return(data)
+  
+}
+```
+
+```{r}
+FMPWednesdayNIU1 <- removeInactivePlayers(FMPWednesdayNIU1)
+FMPThursdayNIU2 <- removeInactivePlayers(FMPThursdayNIU2)
+FMPThursdayNIU3 <- removeInactivePlayers(FMPThursdayNIU3)
+```
+
+
+# Implement rules
+Rules can be found in the P10 graphics folder
+
+```{r}
+FMPTuesdayNIU2 <- FMPTuesdayNIU2 %>%
+  group_by(athlete) %>% 
+  mutate(
+    newFMP = case_when(
+      lag(movement_type) == "Very Low Intensity" & movement_type == "Dynamic High Intensity" ~ "Dynamic Medium Intensity",
+      lag(movement_type) == "Very Low Intensity" & movement_type == "Running High Intensity" ~ "Running Medium Intensity",
+      lag(movement_type) == "Low Intensity" & movement_type == "Dynamic High Intensity" ~ "Dynamic Medium Intensity",
+      lag(movement_type) == "Low Intensity" & movement_type == "Running High Intensity" ~ "Running Medium Intensity",
+      lag(movement_type) == "Running Medium Intensity" & movement_type == "Very Low Intensity" ~ "Low Intensity",
+      lag(movement_type) == "Running Medium Intensity" & movement_type == "Dynamic High Intensity" ~ "Dynamic Medium Intensity",
+      lag(movement_type) == "Running High Intensity" & movement_type == "Very Low Intensity" ~ "Running Medium Intensity",
+      lag(movement_type) == "Running High Intensity" & movement_type == "Low Intensity" ~ "Running Medium Intensity",
+      lag(movement_type) == "Running High Intensity" & movement_type == "Dynamic Medium Intensity" ~ "Dynamic High Intensity",
+      TRUE ~ NA_character_
+    ),
+    newFMP = coalesce(newFMP, movement_type)
+  ) %>% 
+  ungroup()
+
+FMPTuesdayNIU2$newFMP <- factor(FMPTuesdayNIU2$newFMP, levels = c("Very Low Intensity",
+                                                                  "Low Intensity",
+                                                                  "Dynamic Medium Intensity",
+                                                                  "Dynamic High Intensity",
+                                                                  "Running Medium Intensity",
+                                                                  "Running High Intensity"))
+
+FMPTuesdayNIU3 <- FMPTuesdayNIU3 %>%
+  group_by(athlete) %>% 
+  mutate(
+    newFMP = case_when(
+      lag(movement_type) == "Very Low Intensity" & movement_type == "Dynamic High Intensity" ~ "Dynamic Medium Intensity",
+      lag(movement_type) == "Very Low Intensity" & movement_type == "Running High Intensity" ~ "Running Medium Intensity",
+      lag(movement_type) == "Low Intensity" & movement_type == "Dynamic High Intensity" ~ "Dynamic Medium Intensity",
+      lag(movement_type) == "Low Intensity" & movement_type == "Running High Intensity" ~ "Running Medium Intensity",
+      lag(movement_type) == "Running Medium Intensity" & movement_type == "Very Low Intensity" ~ "Low Intensity",
+      lag(movement_type) == "Running Medium Intensity" & movement_type == "Dynamic High Intensity" ~ "Dynamic Medium Intensity",
+      lag(movement_type) == "Running High Intensity" & movement_type == "Very Low Intensity" ~ "Running Medium Intensity",
+      lag(movement_type) == "Running High Intensity" & movement_type == "Low Intensity" ~ "Running Medium Intensity",
+      lag(movement_type) == "Running High Intensity" & movement_type == "Dynamic Medium Intensity" ~ "Dynamic High Intensity",
+      TRUE ~ NA_character_
+    ),
+    newFMP = coalesce(newFMP, movement_type)
+  ) %>% 
+  ungroup()
+
+FMPTuesdayNIU3$newFMP <- factor(FMPTuesdayNIU3$newFMP, levels = c("Very Low Intensity",
+                                                                  "Low Intensity",
+                                                                  "Dynamic Medium Intensity",
+                                                                  "Dynamic High Intensity",
+                                                                  "Running Medium Intensity",
+                                                                  "Running High Intensity"))
+
+FMPWednesdayNIU1 <- FMPWednesdayNIU1 %>%
+  group_by(athlete, drillType, drillCounter) %>% 
+  mutate(
+    newFMP = case_when(
+      lag(movement_type) == "Very Low Intensity" & movement_type == "Dynamic High Intensity" ~ "Dynamic Medium Intensity",
+      lag(movement_type) == "Very Low Intensity" & movement_type == "Running High Intensity" ~ "Running Medium Intensity",
+      lag(movement_type) == "Low Intensity" & movement_type == "Dynamic High Intensity" ~ "Dynamic Medium Intensity",
+      lag(movement_type) == "Low Intensity" & movement_type == "Running High Intensity" ~ "Running Medium Intensity",
+      lag(movement_type) == "Running Medium Intensity" & movement_type == "Very Low Intensity" ~ "Low Intensity",
+      lag(movement_type) == "Running Medium Intensity" & movement_type == "Dynamic High Intensity" ~ "Dynamic Medium Intensity",
+      lag(movement_type) == "Running High Intensity" & movement_type == "Very Low Intensity" ~ "Running Medium Intensity",
+      lag(movement_type) == "Running High Intensity" & movement_type == "Low Intensity" ~ "Running Medium Intensity",
+      lag(movement_type) == "Running High Intensity" & movement_type == "Dynamic Medium Intensity" ~ "Dynamic High Intensity",
+      TRUE ~ NA_character_
+    ),
+    newFMP = coalesce(newFMP, movement_type)
+  ) %>% 
+  ungroup
+
+FMPWednesdayNIU1$newFMP <- factor(FMPWednesdayNIU1$newFMP, levels = c("Very Low Intensity",
+                                                                      "Low Intensity",
+                                                                      "Dynamic Medium Intensity",
+                                                                      "Dynamic High Intensity",
+                                                                      "Running Medium Intensity",
+                                                                      "Running High Intensity"))
+
+FMPThursdayNIU2 <- FMPThursdayNIU2 %>%
+  group_by(athlete, drillType, drillCounter) %>% 
+  mutate(
+    newFMP = case_when(
+      lag(movement_type) == "Very Low Intensity" & movement_type == "Dynamic High Intensity" ~ "Dynamic Medium Intensity",
+      lag(movement_type) == "Very Low Intensity" & movement_type == "Running High Intensity" ~ "Running Medium Intensity",
+      lag(movement_type) == "Low Intensity" & movement_type == "Dynamic High Intensity" ~ "Dynamic Medium Intensity",
+      lag(movement_type) == "Low Intensity" & movement_type == "Running High Intensity" ~ "Running Medium Intensity",
+      lag(movement_type) == "Running Medium Intensity" & movement_type == "Very Low Intensity" ~ "Low Intensity",
+      lag(movement_type) == "Running Medium Intensity" & movement_type == "Dynamic High Intensity" ~ "Dynamic Medium Intensity",
+      lag(movement_type) == "Running High Intensity" & movement_type == "Very Low Intensity" ~ "Running Medium Intensity",
+      lag(movement_type) == "Running High Intensity" & movement_type == "Low Intensity" ~ "Running Medium Intensity",
+      lag(movement_type) == "Running High Intensity" & movement_type == "Dynamic Medium Intensity" ~ "Dynamic High Intensity",
+      TRUE ~ NA_character_
+    ),
+    newFMP = coalesce(newFMP, movement_type)
+  ) %>% 
+  ungroup()
+
+FMPThursdayNIU2$newFMP <- factor(FMPThursdayNIU2$newFMP, levels = c("Very Low Intensity",
+                                                                    "Low Intensity",
+                                                                    "Dynamic Medium Intensity",
+                                                                    "Dynamic High Intensity",
+                                                                    "Running Medium Intensity",
+                                                                    "Running High Intensity"))
+
+
+FMPThursdayNIU3 <- FMPThursdayNIU3 %>%
+  group_by(athlete, drillType, drillCounter) %>% 
+  mutate(
+    newFMP = case_when(
+      lag(movement_type) == "Very Low Intensity" & movement_type == "Dynamic High Intensity" ~ "Dynamic Medium Intensity",
+      lag(movement_type) == "Very Low Intensity" & movement_type == "Running High Intensity" ~ "Running Medium Intensity",
+      lag(movement_type) == "Low Intensity" & movement_type == "Dynamic High Intensity" ~ "Dynamic Medium Intensity",
+      lag(movement_type) == "Low Intensity" & movement_type == "Running High Intensity" ~ "Running Medium Intensity",
+      lag(movement_type) == "Running Medium Intensity" & movement_type == "Very Low Intensity" ~ "Low Intensity",
+      lag(movement_type) == "Running Medium Intensity" & movement_type == "Dynamic High Intensity" ~ "Dynamic Medium Intensity",
+      lag(movement_type) == "Running High Intensity" & movement_type == "Very Low Intensity" ~ "Running Medium Intensity",
+      lag(movement_type) == "Running High Intensity" & movement_type == "Low Intensity" ~ "Running Medium Intensity",
+      lag(movement_type) == "Running High Intensity" & movement_type == "Dynamic Medium Intensity" ~ "Dynamic High Intensity",
+      TRUE ~ NA_character_
+    ),
+    newFMP = coalesce(newFMP, movement_type)
+  ) %>% 
+  ungroup()
+
+FMPThursdayNIU3$newFMP <- factor(FMPThursdayNIU3$newFMP, levels = c("Very Low Intensity",
+                                                                    "Low Intensity",
+                                                                    "Dynamic Medium Intensity",
+                                                                    "Dynamic High Intensity",
+                                                                    "Running Medium Intensity",
+                                                                    "Running High Intensity"))
+
+```
+
+
+
+```{r}
+FMPTuesdayNIU2$newFMP <- recode(FMPTuesdayNIU2$newFMP, 
+                                 "Very Low Intensity" = "VLI",
+                                 "Low Intensity" = "LI",
+                                 "Dynamic Medium Intensity" = "DMI",
+                                 "Dynamic High Intensity" = "DHI",
+                                 "Running Medium Intensity" = "RMI",
+                                 "Running High Intensity" = "RHI")
+
+FMPTuesdayNIU3$newFMP <- recode(FMPTuesdayNIU3$newFMP, 
+                                 "Very Low Intensity" = "VLI",
+                                 "Low Intensity" = "LI",
+                                 "Dynamic Medium Intensity" = "DMI",
+                                 "Dynamic High Intensity" = "DHI",
+                                 "Running Medium Intensity" = "RMI",
+                                 "Running High Intensity" = "RHI")
+
+
+FMPWednesdayNIU1$newFMP <- recode(FMPWednesdayNIU1$newFMP, 
+                                 "Very Low Intensity" = "VLI",
+                                 "Low Intensity" = "LI",
+                                 "Dynamic Medium Intensity" = "DMI",
+                                 "Dynamic High Intensity" = "DHI",
+                                 "Running Medium Intensity" = "RMI",
+                                 "Running High Intensity" = "RHI")
+
+FMPThursdayNIU2$newFMP <- recode(FMPThursdayNIU2$newFMP, 
+                                 "Very Low Intensity" = "VLI",
+                                 "Low Intensity" = "LI",
+                                 "Dynamic Medium Intensity" = "DMI",
+                                 "Dynamic High Intensity" = "DHI",
+                                 "Running Medium Intensity" = "RMI",
+                                 "Running High Intensity" = "RHI")
+
+FMPThursdayNIU3$newFMP <- recode(FMPThursdayNIU3$newFMP, 
+                                 "Very Low Intensity" = "VLI",
+                                 "Low Intensity" = "LI",
+                                 "Dynamic Medium Intensity" = "DMI",
+                                 "Dynamic High Intensity" = "DHI",
+                                 "Running Medium Intensity" = "RMI",
+                                 "Running High Intensity" = "RHI")
+
+```
+
+
+```{r}
+data.table::fwrite(FMPTuesdayNIU2, "Data/ProcessedData/newFMPTuesdayNIU2.csv")
+data.table::fwrite(FMPTuesdayNIU3, "Data/ProcessedData/newFMPTuesdayNIU3.csv")
+data.table::fwrite(FMPWednesdayNIU1, "Data/ProcessedData/newFMPWednesdayNIU1.csv")
+data.table::fwrite(FMPThursdayNIU2, "Data/ProcessedData/newFMPThursdayNIU2.csv")
+data.table::fwrite(FMPThursdayNIU3, "Data/ProcessedData/newFMPThursdayNIU3.csv")
+```

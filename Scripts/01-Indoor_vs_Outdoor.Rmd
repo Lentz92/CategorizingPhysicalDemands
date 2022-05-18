@@ -1,0 +1,125 @@
+---
+title: "01-Indoor_vs_Outdoor"
+author: "Nicki Lentz"
+date: "3/4/2022"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+
+TuesdayNIU2 <- data.table::fread("Data/ProcessedData/TuesdayNIU2gps.csv")
+TuesdayNIU3 <- data.table::fread("Data/ProcessedData/TuesdayNIU3gps.csv")
+WednesdayNIU1 <- data.table::fread("Data/ProcessedData/WednesdayNIU1gps.csv")
+ThursdayNIU2 <- data.table::fread("Data/ProcessedData/ThursdayNIU2gps.csv")
+ThursdayNIU3 <- data.table::fread("Data/ProcessedData/ThursdayNIU3gps.csv")
+
+#Filtering out the first ~8 min of Orange-10 data as he was late, and therefore the GPS was inside.
+ThursdayNIU2 <- ThursdayNIU2[!(ThursdayNIU2$athlete == "Orange-10" & ThursdayNIU2$unixTime < 1645087200)]
+```
+
+```{r}
+options(repr.plot.width = 20, repr.plot.height = 10)
+
+ThursdayNIU2 %>% 
+  ggplot(aes(x = number_sats)) + 
+  geom_histogram(bindwidth = 1) +
+  facet_wrap(~athlete)
+
+```
+
+```{r}
+stats_OfSatelites <- function(dataframe){
+  
+  dataframe_summarize <- dataframe %>% 
+    group_by(athlete) %>% 
+    summarize(mean_HDOP = mean(hdop),
+              sd_HDOP = sd(hdop),
+              mean_sats = mean(number_sats),
+              sd_sats = sd(number_sats),
+              max_HDOP = max(hdop),
+              min_HDOP = min(hdop),
+              max_sats = max(number_sats),
+              min_sats = min(number_sats)) %>% 
+    ungroup()
+  
+  mean_sats = mean(dataframe_summarize$mean_sats)
+  SD_sats = mean(dataframe_summarize$sd_sats)
+  cv_sats = (SD_sats / mean_sats)*100
+  max_sats = max(dataframe_summarize$max_sats)
+  min_sats = min(dataframe_summarize$min_sats)
+  mean_hdop = mean(dataframe_summarize$mean_HDOP)
+  SD_hdop = mean(dataframe_summarize$sd_HDOP)
+  cv_hdop = (SD_hdop / mean_hdop)*100
+  max_hdop = max(dataframe_summarize$max_HDOP)
+  min_hdop = min(dataframe_summarize$min_HDOP)
+  
+  data <- data.frame(
+    mean_sats = mean_sats,
+    SD_sats = SD_sats,
+    cv_sats = cv_sats,
+    max_sats = max_sats,
+    min_sats = min_sats,
+    mean_hdop = mean_hdop,
+    SD_hdop = SD_hdop,
+    cv_hdop = cv_hdop,
+    max_hdop = max_hdop,
+    min_hdop = min_hdop
+  )
+  
+  return(data)
+  
+}
+```
+
+```{r}
+indoor <- bind_rows(WednesdayNIU1, ThursdayNIU2, ThursdayNIU3) %>% 
+  mutate(location = "indoor")
+outdoor <- bind_rows(TuesdayNIU2, TuesdayNIU3) %>% 
+  mutate(location = "outdoor")
+
+overall_Stats <- rbind(
+  indoor = stats_OfSatelites(indoor),
+  outdoor = stats_OfSatelites(outdoor),
+  ThuesdayNIU2 = stats_OfSatelites(TuesdayNIU2),
+  TuesdayNIU3 = stats_OfSatelites(TuesdayNIU3),
+  WednesdayNIU1 = stats_OfSatelites(WednesdayNIU1),
+  ThursdayNIU2 = stats_OfSatelites(ThursdayNIU2),
+  ThursdayNIU3 = stats_OfSatelites(ThursdayNIU3)
+)
+
+data.table::fwrite(overall_Stats, "Data/ProcessedData/gpsQualityTable.csv")
+```
+
+```{r}
+library(patchwork)
+allData <- bind_rows(indoor, outdoor)
+
+p1 <- allData %>% 
+  ggplot(aes(x = location, y = hdop)) + 
+  geom_violin(aes(color = location), show.legend = FALSE) + 
+  ggbeeswarm::geom_quasirandom(aes(color = location), alpha = 0.05, show.legend = FALSE) + 
+  theme_minimal(base_size = 38) + 
+  scale_color_manual("", values = c("indoor"="orange", "outdoor"="Sky blue")) + 
+  scale_y_continuous(breaks = seq(0,8, by = 1)) + 
+  theme(axis.text.x = element_blank()) + 
+  ylab("HDOP")
+
+p2 <- allData %>% 
+  ggplot(aes(x = location, y = number_sats)) + 
+  geom_violin(aes(color = location), show.legend = FALSE) +  
+  ggbeeswarm::geom_quasirandom(aes(color = location), alpha = 0.05, show.legend = FALSE) + 
+  theme_minimal(base_size = 38) + 
+  scale_color_manual("", values = c("indoor"="orange", "outdoor"="Sky blue")) +
+  scale_y_continuous(breaks = seq(0,20, by = 2)) + 
+  ylab("Number of Satellites")
+
+p3 <- p1 / p2
+
+ggsave("Output/Visualization/gpsQuality.jpeg", width = 25, height = 15)
+
+
+```

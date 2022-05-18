@@ -1,0 +1,97 @@
+---
+title: ''
+output: pdf_document
+---
+
+# Methods 
+
+\vspace{0.5cm}
+
+## Pre-Method
+During the spring of 2021 a study was conducted, with the purpose of using machine learning and IMUs to classify different movements in handball. The data was collected from a six vs six handball match with a heterogenous group, where both females and males were included. Some, had several years of experience in the highest levels of junior handball and some had close to zero experience. The data was collected during two matches, in the first match the players from team A wore Catapult Vector IMU devices, in the second match team B wore the devices. The devices collected inertial measurement data at 100Hz from a triaxial accelerometer and gyroscope with a range of $3D \pm 16g$ and $2000^{\circ}/s$ respectively. Videos were recorded with two GoPro Hero 7 cameras at 1080p / 48fps.
+The study tried to classify seven different movements (see table \@ref(tab:originalLabels)) with machine learning.
+
+```{r originalLabels, echo = FALSE, out.width = "100%"}
+originalLabels <- data.frame(
+  Labels = c("Very Low Intensity (VLI)", 
+             "Low Intensity (LI)",
+             "Running Medium Intensity (RMI)",
+             "Running High Intensity (RHI)",
+             "Dynamic Medium Intensity (DMI)",
+             "Dynamic High Intensity (DHI)",
+             "Throw"),
+  Description = c("Standing like movements",
+                  "Walking like movements",
+                  "Steady state linear and curved jogging and running at medium intensity",
+                  "Sprinting without change of direction at near maximum intensity",
+                  "Medium intensity multi directional movements, linear acceleration and deceleration.
+                  This includes different kinds of jumps, with the exception of jump shots.",
+                  "High intensity multi directional movements, linear acceleration, deceleration,
+                  and different kinds of tackles.",
+                  "All kinds of shots and passes with a ball.")
+)
+
+knitr::kable(originalLabels, booktabs = T, caption = "Table of the original classifications of events") %>% 
+  kableExtra::row_spec(0, bold = T) %>% 
+  kableExtra::column_spec(2, width = "30em") %>% 
+  kableExtra::kable_material_dark() %>% 
+  kableExtra::kable_styling(full_width = F, latex_options = "HOLD_position")
+```
+
+However, a very poor F1-score of 0.256 and an accuracy of 0.377 were found. Which is barely better than random guessing.
+These poor results may have been caused by a lack of exploratory data analysis (EDA). Therefore, the purpose of this section was to investigate the data and see if better classifications can be made after a prober EDA.
+Prior to the EDA a lowpass zero-phase 2nd order 5 Hz Butterworth filter was implemented, to attenuate frequencies above the chosen cut-off. A visual representation of the filter was created (see figure \@ref(fig:lowpassFilter)) to verify the chosen filter. Where plot A and B shows the forward acceleration in the time domain prior and after the implementation of the filter, respectively. Plot C and D shows the same acceleration vector but in the frequency domain before and after the implementation of the filter, respectively.
+
+```{r lowpassFilter, fig.cap = "Forward acceleration showed in time (A,B) and frequency (C,D) domain. The left plots (A,C) is before filtering and the right plots (B,D) is after filtering.", echo = FALSE, out.width = "100%"}
+knitr::include_graphics("img/signalfilter.png")
+```
+
+### Exploratory data analysis
+An error in the mapping between the subjects and IMUs was found which needed to be managed. This was done through a new labeling routine on the video material with the use of Catapult Vision software. Only priority for the new labeling routine was to label overhead throwing events to ensure that it was detectable by the IMU \citep{Skejo2021}. A throw would be labeled as either soft, medium or hard. Where soft and medium would be passes between players at different subjective judged intensities and hard would be long powerful throws or goal attempts. It was expected that these intensity labels would be observable in the amplitude of yaw (see figure \@ref(fig:globalsystem) for global orientation of the IMU).
+
+```{r globalsystem, fig.cap = "Orientation of the IMU sensor", echo = FALSE, out.width = "100%"}
+knitr::include_graphics("img/globalSystem.png")
+```
+
+Figure \@ref(fig:yawPhoto) shows a clear example of the pattern, which made the remaping possible. The throw is clearly seen in the yaw data with a peak in the positive direction and then an even bigger peak in the negative direction.
+
+```{r yawPhoto, fig.cap = "Graph represents one of the subjects performing a hard throw. With yaw rotation on the y axis and time on the x axis. The pictures is the physical movements the graph is recorded from. ", echo = FALSE, out.width = "100%"}
+knitr::include_graphics("img/yawPhoto.png")
+```
+
+A clear pattern was expected in the yaw data after the remapping. Therefore,  a peak finding algorithm was implemented to create figure \@ref(fig:postMapThrow). Since the pattern for the positive and negative parts of yaw is opposite for left and right handed throws, the positive absolute value was used to find the peaks and create the figure.
+A clear pattern is visible. However, it also shows that it can be difficult to visualize the intensity of a throw. A lot of the medium throws have the same pattern and amplitude as soft and the same goes for a few of the hard throws. Because of this difficulty it might be worth to revisit the original seven labels.
+
+```{r postMapThrow, fig.cap = "Three plots showing the centered peak with a normalized time axis of 101 data points after remapping. x axis is the number of datapoints and y axis is the degree per second for the absolute yaw rotation, for subject 10.", echo = FALSE, out.width = "100%"}
+knitr::include_graphics("img/postMapThrowYaw.png") 
+```
+
+Therefore, the seven original labels were changed to not consider the intensity levels in their respective movement type. Which resulted in the following four labels:
+
+* Low Intensity (LI and VLI)
+* Dynamic (DMI and DHI)
+* Running (RMI and RHI)
+* Throw (Overhead throws)
+
+Keep in mind that in the original labelling process any kind of pass and shot would classify as a throw. However, this has been changed to only classify the overhead throws
+
+## New-method
+
+### Variable Selection
+
+One of the shortcomings of the study behind this dataset is the lack of a variable selection procedure. Therefore the “Variable Selection Using Random Forest” (VSURF) \citep{Genuer2010, Genuer2015} package within R had been used to select the variable features that is of most importance to classify the labels. 
+
+This will be applied after the time series features and the aggregated features has been computed (see figure \@ref(fig:featureWorkflow)) and the most important features will be used for the final modelling process. A total of 15 features out of 49 features was extracted.
+
+```{r featureWorkflow, fig.cap = "Showing the workflow from raw data to feature extraction", echo = FALSE, out.width = "100%"}
+knitr::include_graphics("img/featureworkflow.png")
+```
+
+### Machine Learning Approach
+The data was split into a training (80% of the data) and test set (20% of the data) stratified to the depended labels.
+A grouped v-fold cross validation was conducted on the training data. This means that each subject would be extracted from the data at each iteration of the cross validation. This was used to train the hyperparameter tuning.
+Three preprocessing approaches were used: No upsampling, SMOTE \citep{Chawla2002} and ADASYN \citep{He2008}. These where then used in four different models: Support Vector Machine with a radial basis kernel, K-Nearest Neighbor, Random Forest and Gradient Boosted Tree. All models was tuned for hyperparameters with the use of the *tune_race_anova* function from the *finetune* v0.1.0 package in R (see figure \@ref(fig:resultWorkflow)). The best performing models was chosen based on the F-measure and Matthews Correlation Coefficient (MCC). The F-measure represents the harmonic mean of precision and recall. The F-measure is chosen above accuracy because of the lack of a gaussian distribution in the data set, while also being a better metric when false negatives and false positives are of importance \citep{Kelleher2015}. Together with the F-measure the MCC was chosen  \citep{Delgado2019}. MCC measures the difference between actual and predicted value and also takes imbalanced data into account as well. 
+
+```{r resultWorkflow, fig.cap = "Showing the machine learning workflow, from data splitting to results", echo = FALSE, out.width = "100%"}
+knitr::include_graphics("img/Resultworkflow.png")
+```

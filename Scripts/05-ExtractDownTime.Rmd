@@ -1,0 +1,656 @@
+---
+title: "05-ExtractDownTime"
+author: "Nicki lentz"
+date: "`r Sys.Date()`"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(tidytext)
+library(tidymodels)
+library(ggraph)
+library(patchwork)
+source("scripts/PrettyConfusionMatrix.R")
+
+FMPTuesdayNIU2 <- as_tibble(data.table::fread("Data/ProcessedData/newFMPTuesdayNIU2.csv"))
+FMPTuesdayNIU3 <- as_tibble(data.table::fread("Data/ProcessedData/newFMPTuesdayNIU3.csv"))
+FMPWednesdayNIU1 <- as_tibble(data.table::fread("Data/ProcessedData/newFMPWednesdayNIU1.csv")) %>% 
+  filter(drillType != "downtime") %>% 
+  #Count number of 0.5s occurences there are in each category. To make it easy to calculate total time
+  #in each FMP category later on.
+  group_by(ID, newFMP) %>% 
+  mutate(time_s = 1:n()) %>%  
+  ungroup()
+
+FMPWednesdayNIU1$drillType[FMPWednesdayNIU1$drillType == "22_x_12"] <- "22_x_12_a"
+
+
+FMPThursdayNIU2 <- as_tibble(data.table::fread("Data/ProcessedData/newFMPThursdayNIU2.csv")) %>% 
+  filter(drillType != "downtime") %>% 
+  #Count number of 0.5s occurences there are in each category. To make it easy to calculate total time
+  #in each FMP category later on.
+  group_by(ID, newFMP) %>% 
+  mutate(time_s = 1:n()) %>%  
+  ungroup()
+
+FMPThursdayNIU3 <- as_tibble(data.table::fread("Data/ProcessedData/newFMPThursdayNIU3.csv")) %>% 
+  filter(drillType != "downtime") %>% 
+  #Count number of 0.5s occurences there are in each category. To make it easy to calculate total time
+  #in each FMP category later on.
+  group_by(ID, newFMP) %>% 
+  mutate(time_s = 1:n()) %>%  
+  ungroup()
+
+calculatengram <- function(dataframe, ngram){
+  allGrams <- tibble()
+  
+  for (i in unique(dataframe$athlete)){
+    subject <- dataframe %>% 
+      filter(athlete == i) %>% 
+      mutate(drillID = paste(drillType, drillCounter, sep="_"))
+    
+    
+    for (j in unique(subject$drillID)){
+      subject_drill <- subject %>% 
+        filter(drillID == j)
+      
+      tempTibble <- tibble(
+        longNewFMP = paste(subject_drill$newFMP, collapse = " ")) %>% 
+        tidytext::unnest_tokens(gram, longNewFMP, token = "ngrams", n = ngram) %>% 
+        ungroup()
+      
+      #Insert NA at first row to have correct length
+      naValues <- tibble(naTest = rep(NA, ngram-1))
+      tempTibble <- bind_rows(naValues, tempTibble) %>% 
+        select(gram)
+      tempTibble$athlete = i 
+      
+      allGrams <- rbind(allGrams, tempTibble)
+    }
+  }
+  return(allGrams)
+}
+
+PrettyConfusionMatrix <- function(actuel, predicted){
+  table <- data.frame(caret::confusionMatrix(predicted, actuel)$table)
+  
+  plotTable <- table %>%
+    mutate(Predicted = ifelse(table$Prediction == table$Reference, "True", "False")) %>%
+    group_by(Reference) %>%
+    mutate(Probability = Freq/sum(Freq))
+  
+  # fill alpha relative to sensitivity/specificity by proportional outcomes within reference groups 
+  ggplot(data = plotTable, mapping = aes(x = Reference, y = Prediction, alpha = Probability)) +
+    geom_tile() +
+    geom_text(aes(label = Freq), size = 12, fontface  = "bold", alpha = 1) +
+    theme_minimal() + 
+    xlim(rev(levels(table$Reference))) + #reverse x axis order
+    labs(x = "Actuel") + 
+    theme(legend.title = element_text(size = 20, face = "bold"),
+          legend.key.size = unit(1.5, 'cm'),
+          axis.title = element_text(size = 20, face = "bold"),
+          axis.text.x = element_text(angle = 45, vjust = 0.5),
+          text = element_text(size = 20))
+}
+```
+
+
+#Investigate a way to remove LI and VLI during breaks in the big drill
+
+```{r}
+recognizeInactivity <- function(data){
+  dataActivity <- data %>% 
+    mutate(activity = case_when(
+      newFMP %in% c("VLI","LI") ~ "Inactive",
+      TRUE ~ "Active"
+    )) %>% 
+    group_by(athlete) %>% 
+    mutate(
+      change = activity != lag(activity),
+      change = if_else(is.na(change), FALSE, change),
+      changegroup = cumsum(change),
+      rollActivity = if_else(changegroup == lead(changegroup, 10) & activity == "Inactive", 1, 0)
+    ) %>% 
+    group_by(changegroup) %>% 
+    mutate(eventLength = 1:n()) %>% 
+    ungroup()
+  
+  return(dataActivity)
+  
+}
+FMPWednesdayNIU1_activity <- recognizeInactivity(FMPWednesdayNIU1)
+FMPThursdayNIU2_activity <- recognizeInactivity(FMPThursdayNIU2)
+FMPThursdayNIU3_activity <- recognizeInactivity(FMPThursdayNIU3)
+allDrills_activity <- rbind(FMPWednesdayNIU1_activity, FMPThursdayNIU2_activity, FMPThursdayNIU3_activity)
+```
+
+```{r}
+ggthemr::ggthemr("greyscale")
+allDrills_activity %>% 
+  filter(rollActivity == 0) %>% 
+  group_by(drillType, drillCounter) %>% 
+  count(newFMP) %>%
+  mutate(percen = (n / sum(n))*100) %>% 
+  ungroup() %>% 
+  ggplot(aes(x = drillCounter, y = percen, fill = newFMP)) + 
+  geom_col() + 
+  facet_wrap(~drillType) + 
+  scale_fill_manual(values=c("VLI"="#313131", "LI"="#0f3698", 
+                             "DMI"="#94281b", "DHI"="#e65036",
+                             "RMI"="#3c8001", "RHI"="#65e114")) + 
+  theme(legend.position = "top",
+        text=element_text(size=35)) + 
+  scale_y_continuous("Percentage") + 
+  scale_x_continuous("Number of drills", breaks=1:7)
+
+allDrills %>%
+  group_by(drillType, drillCounter) %>% 
+  count(newFMP) %>%
+  mutate(percen = (n / sum(n))*100) %>% 
+  ungroup() %>% 
+  ggplot(aes(x = drillCounter, y = percen, fill = newFMP)) + 
+  geom_col() + 
+  facet_wrap(~drillType) + 
+  scale_fill_manual(values=c("VLI"="#313131", "LI"="#0f3698", 
+                             "DMI"="#94281b", "DHI"="#e65036",
+                             "RMI"="#3c8001", "RHI"="#65e114")) + 
+  theme(legend.position = "top",
+        text=element_text(size=35)) + 
+  scale_y_continuous("Percentage") + 
+  scale_x_continuous("Number of drills", breaks=1:7)
+```
+
+
+```{r}
+FMPThursdayNIU2_activity %>% 
+  filter(athlete == "Yellow-2", drillType == "Big_drill") %>% 
+  ggplot(aes(x = unixTime, y = newFMP, fill = newFMP)) + 
+  geom_tile(color = "black") + 
+  theme_minimal() + 
+  theme(legend.position = "none",
+        axis.text.y = element_blank(),
+        axis.text.x = element_blank()) + 
+  scale_fill_manual(values=c("VLI"="#313131", "LI"="#0f3698", 
+                             "DMI"="#94281b", "DHI"="#e65036",
+                             "RMI"="#3c8001", "RHI"="#65e114")) + 
+  ylab("Football Movement Profile") + 
+  xlab(" ") +
+  facet_wrap(~drillCounter, scale = "free")
+
+FMPThursdayNIU2_activity %>% 
+  filter(athlete == "Yellow-2", rollActivity == 0, drillType == "Big_drill") %>% 
+  ggplot(aes(x = unixTime, y = newFMP, fill = newFMP)) + 
+  geom_tile(color = "black") + 
+  theme_minimal() + 
+  theme(legend.position = "none",
+        axis.text.y = element_blank(),
+        axis.text.x = element_blank()) + 
+  scale_fill_manual(values=c("VLI"="#313131", "LI"="#0f3698", 
+                             "DMI"="#94281b", "DHI"="#e65036",
+                             "RMI"="#3c8001", "RHI"="#65e114")) + 
+  ylab("Football Movement Profile") + 
+  xlab(" ") +
+  facet_wrap(~drillCounter, scale = "free")
+```
+
+
+
+
+
+
+```{r}
+FMPWednesdayNIU1$bigram <- calculatengram(FMPWednesdayNIU1, 2)$gram
+FMPWednesdayNIU1$trigram <- calculatengram(FMPWednesdayNIU1, 3)$gram
+FMPWednesdayNIU1$quadgram <- calculatengram(FMPWednesdayNIU1, 4)$gram
+
+FMPThursdayNIU2$bigram <- calculatengram(FMPThursdayNIU2, 2)$gram
+FMPThursdayNIU2$trigram <- calculatengram(FMPThursdayNIU2, 3)$gram
+FMPThursdayNIU2$quadgram <- calculatengram(FMPThursdayNIU2, 4)$gram
+
+FMPThursdayNIU3$bigram <- calculatengram(FMPThursdayNIU3, 2)$gram
+FMPThursdayNIU3$trigram <- calculatengram(FMPThursdayNIU3, 3)$gram
+FMPThursdayNIU3$quadgram <- calculatengram(FMPThursdayNIU3, 4)$gram
+
+allDrills <- rbind(FMPWednesdayNIU1, FMPThursdayNIU2, FMPThursdayNIU3) %>% 
+  mutate(size = case_when(drillType == "Big_drill" ~ "big",
+                   TRUE ~ "small"))
+```
+
+
+```{r}
+fmpDistribution <- allDrills %>% 
+  na.omit() %>% 
+  group_by(drillType, drillCounter, athlete, size) %>% 
+  count(newFMP, bigram, trigram, quadgram) %>% 
+  mutate(percen = (n/sum(n))*100) %>% 
+  select(-n) %>% 
+  pivot_wider(names_from = c(newFMP, bigram, trigram, quadgram),
+              values_from = percen,
+              values_fill = 0L) %>% 
+  ungroup() %>% 
+  mutate(drillType = as_factor(drillType),
+         size = as_factor(size))
+```
+
+# Split data
+```{r}
+set.seed(123)
+splits <- initial_split(fmpDistribution, prop = 0.8, strata = drillType)
+train <- training(splits)
+test <- testing(splits)
+```
+
+#VSURF
+
+```{r}
+library(VSURF)
+
+y <- train$drillType %>% 
+  droplevels()
+x <- train %>% 
+  select(!c("drillType", "drillCounter", "athlete", "size"))
+
+set.seed(456)
+# mtry = p / 3 based on Genuer 2010 -> check up on the source.
+dfTrain.vsurf <- VSURF(x, y, parallel = TRUE, 
+                       ncores = 4, clusterType = "PSOCK", ntree = 500)
+
+dfTrain.vsurf.selected <- x %>% 
+  select(dfTrain.vsurf$varselect.pred) %>% 
+  colnames()
+```
+
+#BINARY PROBLEM
+
+```{r}
+fmpDistribution_VSURF <- fmpDistribution %>% 
+  select(size, drillType, drillCounter, athlete, dfTrain.vsurf.selected)
+
+set.seed(123)
+splits <- initial_split(fmpDistribution_VSURF, prop = 0.8, strata = drillType)
+train <- training(splits)
+test <- testing(splits)
+cv_fold <- vfold_cv(train, v = 10, strata = drillType)
+```
+
+
+```{r}
+rf_mod <- 
+  rand_forest(mtry = tune(), min_n = tune(), trees = tune()) %>% 
+  set_engine("ranger", importance = "permutation") %>% 
+  set_mode("classification")
+
+rf_recipe <- 
+  recipe(size ~ ., data = train) %>% 
+  step_rm(drillType, drillCounter, athlete)
+
+rf_workflow <-
+  workflow() %>% 
+  add_model(rf_mod) %>% 
+  add_recipe(rf_recipe)
+
+
+cl <- parallel::makePSOCKcluster(4)
+doParallel::registerDoParallel(cl)
+
+set.seed(345)
+rf_rs <- finetune::tune_race_anova(
+  rf_workflow,
+  resamples = cv_fold,
+  grid = 25, 
+  metrics = metric_set(f_meas, roc_auc),
+  control = finetune::control_race(save_pred = TRUE,
+                                   parallel_over = "everything",
+                                   save_workflow = TRUE)
+)
+
+stopCluster(cl)
+registerDoSEQ()
+
+rf_rs %>% collect_metrics()
+```
+
+```{r}
+best_forest <- rf_rs %>% 
+  select_best("f_meas")
+
+final_forest <- 
+  rf_workflow %>% 
+  finalize_workflow(best_forest)
+
+lastFit_forest <- 
+  final_forest %>% 
+  last_fit(splits, 
+           metrics = metric_set(f_meas))
+
+forestFit_workflow <- pluck(lastFit_forest$.workflow, 1)
+
+prediction <- predict(forestFit_workflow, test)
+
+validated <- data.frame(
+  class = test$size,
+  .pred_class = prediction$.pred_class
+)
+```
+
+
+```{r}
+PrettyConfusionMatrix(validated$class, validated$.pred_class)
+```
+
+
+```{r}
+ggthemr::ggthemr("greyscale")
+forestFit_workflow %>% extract_fit_parsnip() %>% vip::vip(geom = "point", aes = list(size = 5)) + 
+  theme(axis.text.x = element_text(size = 22),
+        axis.text.y = element_text(size = 22),
+        plot.title = element_text(size = 28))
+```
+
+
+#MULTI CLASS
+
+```{r}
+fmpDistribution_VSURF <- fmpDistribution_VSURF %>% 
+  filter(size != "big") %>% 
+  droplevels()
+
+set.seed(123)
+splits <- initial_split(fmpDistribution_VSURF, prop = 0.8, strata = drillType)
+train <- training(splits)
+test <- testing(splits)
+cv_fold <- vfold_cv(train, v = 10, strata = drillType)
+```
+
+
+```{r}
+rf_mod <- 
+  rand_forest(mtry = tune(), min_n = tune(), trees = tune()) %>% 
+  set_engine("ranger", importance = "permutation") %>% 
+  set_mode("classification")
+
+rf_recipe <- 
+  recipe(drillType ~ ., data = train) %>% 
+  step_rm(size, drillCounter, athlete)
+
+rf_workflow <-
+  workflow() %>% 
+  add_model(rf_mod) %>% 
+  add_recipe(rf_recipe)
+
+
+cl <- parallel::makePSOCKcluster(4)
+doParallel::registerDoParallel(cl)
+
+set.seed(345)
+rf_rs <- finetune::tune_race_anova(
+  rf_workflow,
+  resamples = cv_fold,
+  grid = 25, 
+  metrics = metric_set(f_meas, roc_auc),
+  control = finetune::control_race(save_pred = TRUE,
+                                   parallel_over = "everything",
+                                   save_workflow = TRUE)
+)
+
+stopCluster(cl)
+registerDoSEQ()
+
+rf_rs %>% collect_metrics()
+```
+
+```{r}
+best_forest <- rf_rs %>% 
+  select_best("f_meas")
+
+final_forest <- 
+  rf_workflow %>% 
+  finalize_workflow(best_forest)
+
+lastFit_forest <- 
+  final_forest %>% 
+  last_fit(splits, 
+           metrics = metric_set(f_meas))
+
+forestFit_workflow <- pluck(lastFit_forest$.workflow, 1)
+
+prediction <- predict(forestFit_workflow, test)
+
+validated <- data.frame(
+  class = test$drillType,
+  .pred_class = prediction$.pred_class
+)
+```
+
+
+```{r}
+PrettyConfusionMatrix(validated$class, validated$.pred_class)
+```
+
+```{r}
+ggthemr::ggthemr("greyscale")
+forestFit_workflow %>% extract_fit_parsnip() %>% vip::vip(geom = "point", aes = list(size = 5)) + 
+  theme(axis.text.x = element_text(size = 22),
+        axis.text.y = element_text(size = 22),
+        plot.title = element_text(size = 28))
+```
+
+
+
+# ```{r}
+# #calculate the relative frequency term
+# 
+# t_tf_idf <- FMPThursdayNIU2 %>% 
+#   na.omit() %>% 
+#   filter(drillType != "downtime") %>% 
+#   pivot_longer(cols = c("bigram","trigram","quadgram")) %>% 
+#   count(drillType, name, value) %>% 
+#   tidytext::bind_tf_idf(value, drillType, n) %>% 
+#   arrange(desc(tf_idf))
+# 
+# t_tf_idf %>% 
+#   filter(name == "bigram") %>% 
+#   ggplot(aes(x = reorder(value, tf), y = tf, fill = drillType)) + 
+#   geom_col() + 
+#   facet_wrap(~drillType) + 
+#   coord_flip()
+# ```
+
+```{r}
+networkPlot <- function(data, networkTitle){
+  set.seed(123)
+  
+  data_graph <- data %>% 
+    na.omit() %>% 
+    igraph::graph_from_data_frame()
+  
+  a <- grid::arrow(type = "closed", length = unit(.15, "inches"))
+  
+  ggraph(data_graph, layout = "fr") + 
+    geom_edge_link(aes(edge_alpha = n), show.legend = FALSE, 
+                   arrow = a, end_cap = circle(.07, "inches")) + 
+    geom_node_point(color = "lightblue", size = 5) + 
+    geom_node_text(aes(label = name), vjust = 1.5, hjust = 1.5) + 
+    theme_void() + 
+    theme(plot.title = element_text(hjust = 0.5, size = 20)) + 
+    ggtitle(networkTitle)
+  
+}
+```
+
+```{r}
+t_seperated <- allDrills %>% 
+  filter(drillType == "16_x_12") %>% 
+  separate(bigram, c("word1","word2"), sep = " ") %>% 
+  count(word1, word2, sort = TRUE)
+
+p1 <- networkPlot(t_seperated, "16_x_12")
+
+t_seperated <- allDrills %>% 
+  filter(drillType == "22_x_12_a") %>% 
+  separate(bigram, c("word1","word2"), sep = " ") %>% 
+  count(word1, word2, sort = TRUE)
+
+p2 <- networkPlot(t_seperated, "22_x_12_a")
+
+t_seperated <- allDrills %>% 
+  filter(drillType == "22_x_12_b") %>% 
+  separate(bigram, c("word1","word2"), sep = " ") %>% 
+  count(word1, word2, sort = TRUE)
+
+p3 <- networkPlot(t_seperated, "22_x_12_b")
+
+t_seperated <- allDrills %>% 
+  filter(drillType == "Big_drill") %>% 
+  separate(bigram, c("word1","word2"), sep = " ") %>% 
+  count(word1, word2, sort = TRUE)
+
+p4 <- networkPlot(t_seperated, "Big drill")
+
+
+(p1+p2) / (p3+p4) + plot_annotation("Relative transition between each category based on bigrams")
+
+```
+
+```{r}
+allDrills %>% 
+  na.omit() %>% 
+  group_by(drillType) %>% 
+  count(bigram) %>% 
+  mutate(percen = (n / sum(n))*100) %>% 
+  ungroup() %>% 
+  ggplot(aes(x = reorder(bigram, percen), y = percen)) + 
+  geom_col() + 
+  facet_wrap(~drillType) + 
+  coord_flip() + 
+  theme(text = element_text(size = 30)) +
+  labs(x = "Bigram", y = "Percentage") + 
+  ggtitle("Bigram distribution")
+
+
+```
+
+
+```{r}
+allDrills %>% 
+  group_by(drillType, drillCounter) %>% 
+  count(newFMP) %>%
+  mutate(percen = (n / sum(n))*100) %>% 
+  ungroup() %>% 
+  ggplot(aes(x = drillCounter, y = percen, fill = newFMP)) + 
+  geom_col() + 
+  facet_wrap(~drillType) + 
+  scale_fill_manual(values=c("VLI"="#313131", "LI"="#0f3698", 
+                             "DMI"="#94281b", "DHI"="#e65036",
+                             "RMI"="#3c8001", "RHI"="#65e114")) + 
+  theme(legend.position = "top",
+        text=element_text(size=35)) + 
+  scale_y_continuous("Percentage") + 
+  scale_x_continuous("Number of drills", breaks=1:7)
+```
+
+
+## Relative difference
+
+```{r}
+FMPThursdayNIU2_freq <- FMPThursdayNIU2 %>% 
+  group_by(athlete, drillType) %>% 
+  count(newFMP) %>%
+  mutate(percen = n / sum(n)) %>% 
+  ungroup()
+
+p1 <- FMPThursdayNIU2_freq %>% 
+  filter(drillType == "Big_drill") %>% 
+  ggplot(aes(x = "", y = percen, fill=newFMP)) + 
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) + 
+  facet_wrap(~athlete) + 
+  geom_text(aes(label = paste0(round(percen, 2), "%")), position = position_stack(vjust = 0.5)) +
+  theme_void() + 
+  scale_fill_manual(values=c("VLI"="#313131", "LI"="#0f3698", 
+                             "DMI"="#94281b", "DHI"="#e65036",
+                             "RMI"="#3c8001", "RHI"="#65e114")) + 
+  ggtitle("Big Drill") + 
+  theme(legend.position = "none")
+
+
+p2 <- FMPThursdayNIU2_freq %>% 
+  filter(drillType == "16_x_12") %>% 
+  ggplot(aes(x = "", y = percen, fill=newFMP)) + 
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) + 
+  facet_wrap(~athlete) + 
+  geom_text(aes(label = paste0(round(percen, 2), "%")), position = position_stack(vjust = 0.5)) +
+  theme_void() + 
+  scale_fill_manual(values=c("VLI"="#313131", "LI"="#0f3698", 
+                             "DMI"="#94281b", "DHI"="#e65036",
+                             "RMI"="#3c8001", "RHI"="#65e114")) + 
+  ggtitle("16_x_12")
+
+
+p1 + p2 
+```
+
+```{r}
+FMPThursdayNIU3_freq <- FMPThursdayNIU3 %>% 
+  group_by(athlete, drillType) %>% 
+  count(newFMP) %>%
+  mutate(percen = n / sum(n)) %>% 
+  ungroup()
+
+p1 <- FMPThursdayNIU3_freq %>% 
+  filter(drillType == "22_x_12_a") %>% 
+  ggplot(aes(x = "", y = percen, fill=newFMP)) + 
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) + 
+  facet_wrap(~athlete) + 
+  geom_text(aes(label = paste0(round(percen, 2), "%")), position = position_stack(vjust = 0.5)) +
+  theme_void() + 
+  scale_fill_manual(values=c("VLI"="#313131", "LI"="#0f3698", 
+                             "DMI"="#94281b", "DHI"="#e65036",
+                             "RMI"="#3c8001", "RHI"="#65e114")) + 
+  ggtitle("22_x_12_a") + 
+  theme(legend.position = "none")
+
+
+p2 <- FMPThursdayNIU3_freq %>% 
+  filter(drillType == "22_x_12_b") %>% 
+  ggplot(aes(x = "", y = percen, fill=newFMP)) + 
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) + 
+  facet_wrap(~athlete) + 
+  geom_text(aes(label = paste0(round(percen, 2), "%")), position = position_stack(vjust = 0.5)) +
+  theme_void() + 
+  scale_fill_manual(values=c("VLI"="#313131", "LI"="#0f3698", 
+                             "DMI"="#94281b", "DHI"="#e65036",
+                             "RMI"="#3c8001", "RHI"="#65e114")) + 
+  ggtitle("22_x_12_b") + 
+  theme(legend.position = "none")
+
+
+p3 <- FMPThursdayNIU3_freq %>% 
+  filter(drillType == "16_x_12") %>% 
+  ggplot(aes(x = "", y = percen, fill=newFMP)) + 
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) + 
+  facet_wrap(~athlete) + 
+  geom_text(aes(label = paste0(round(percen, 2), "%")), position = position_stack(vjust = 0.5)) +
+  theme_void() + 
+  scale_fill_manual(values=c("VLI"="#313131", "LI"="#0f3698", 
+                             "DMI"="#94281b", "DHI"="#e65036",
+                             "RMI"="#3c8001", "RHI"="#65e114")) + 
+  ggtitle("16_x_12")
+
+
+p1 + p2 + p3
+```
+
+
+# Sammon mapping test
+
+
+

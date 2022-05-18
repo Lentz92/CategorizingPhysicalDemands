@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>6 Appendix | 00-main.knit</title>
+  <meta name="description" content="" />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="6 Appendix | 00-main.knit" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="6 Appendix | 00-main.knit" />
+  
+  
+  
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="conclusion.html"/>
+
+<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+
+
+
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="1" data-path="introduction.html"><a href="introduction.html"><i class="fa fa-check"></i><b>1</b> Introduction</a></li>
+<li class="chapter" data-level="2" data-path="method.html"><a href="method.html"><i class="fa fa-check"></i><b>2</b> Method</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="method.html"><a href="method.html#participants"><i class="fa fa-check"></i><b>2.1</b> Participants</a></li>
+<li class="chapter" data-level="2.2" data-path="method.html"><a href="method.html#protocol-design"><i class="fa fa-check"></i><b>2.2</b> Protocol design</a>
+<ul>
+<li class="chapter" data-level="2.2.1" data-path="method.html"><a href="method.html#technical-design"><i class="fa fa-check"></i><b>2.2.1</b> Technical design</a></li>
+<li class="chapter" data-level="2.2.2" data-path="method.html"><a href="method.html#practical-design"><i class="fa fa-check"></i><b>2.2.2</b> Practical design</a></li>
+</ul></li>
+<li class="chapter" data-level="2.3" data-path="method.html"><a href="method.html#labeling"><i class="fa fa-check"></i><b>2.3</b> Labeling</a></li>
+<li class="chapter" data-level="2.4" data-path="method.html"><a href="method.html#dataproc"><i class="fa fa-check"></i><b>2.4</b> Data processing</a></li>
+<li class="chapter" data-level="2.5" data-path="method.html"><a href="method.html#feature-engineering"><i class="fa fa-check"></i><b>2.5</b> Feature engineering</a></li>
+<li class="chapter" data-level="2.6" data-path="method.html"><a href="method.html#trainModels"><i class="fa fa-check"></i><b>2.6</b> Training the models</a></li>
+<li class="chapter" data-level="2.7" data-path="method.html"><a href="method.html#extraction-of-trends-in-the-model"><i class="fa fa-check"></i><b>2.7</b> Extraction of trends in the model</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>3</b> Results</a></li>
+<li class="chapter" data-level="4" data-path="discussion.html"><a href="discussion.html"><i class="fa fa-check"></i><b>4</b> Discussion</a></li>
+<li class="chapter" data-level="5" data-path="conclusion.html"><a href="conclusion.html"><i class="fa fa-check"></i><b>5</b> Conclusion</a></li>
+<li class="chapter" data-level="6" data-path="appendix.html"><a href="appendix.html"><i class="fa fa-check"></i><b>6</b> Appendix</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="appendix.html"><a href="appendix.html#App:A"><i class="fa fa-check"></i><b>6.1</b> Detailed Method</a>
+<ul>
+<li class="chapter" data-level="6.1.1" data-path="appendix.html"><a href="appendix.html#signal-filter"><i class="fa fa-check"></i><b>6.1.1</b> Signal Filter</a></li>
+<li class="chapter" data-level="6.1.2" data-path="appendix.html"><a href="appendix.html#trend-removal-of-time-series-data"><i class="fa fa-check"></i><b>6.1.2</b> Trend removal of time series data</a></li>
+<li class="chapter" data-level="6.1.3" data-path="appendix.html"><a href="appendix.html#cs-sized-windows"><i class="fa fa-check"></i><b>6.1.3</b> 50 cs sized windows</a></li>
+<li class="chapter" data-level="6.1.4" data-path="appendix.html"><a href="appendix.html#choice-of-feature-vectors"><i class="fa fa-check"></i><b>6.1.4</b> Choice of Feature vectors</a></li>
+<li class="chapter" data-level="6.1.5" data-path="appendix.html"><a href="appendix.html#choice-of-feature-aggregrations"><i class="fa fa-check"></i><b>6.1.5</b> Choice of Feature Aggregrations</a></li>
+<li class="chapter" data-level="6.1.6" data-path="appendix.html"><a href="appendix.html#leave-one-subject-out"><i class="fa fa-check"></i><b>6.1.6</b> Leave one subject out</a></li>
+<li class="chapter" data-level="6.1.7" data-path="appendix.html"><a href="appendix.html#variable-selection-using-random-forest"><i class="fa fa-check"></i><b>6.1.7</b> Variable Selection Using Random Forest</a></li>
+<li class="chapter" data-level="6.1.8" data-path="appendix.html"><a href="appendix.html#upsampling-techniques"><i class="fa fa-check"></i><b>6.1.8</b> Upsampling techniques</a></li>
+<li class="chapter" data-level="6.1.9" data-path="appendix.html"><a href="appendix.html#futility-analysis-for-hyperparameter-tuning"><i class="fa fa-check"></i><b>6.1.9</b> Futility Analysis for hyperparameter tuning</a></li>
+<li class="chapter" data-level="6.1.10" data-path="appendix.html"><a href="appendix.html#model-performance-metrics"><i class="fa fa-check"></i><b>6.1.10</b> Model performance metrics</a></li>
+</ul></li>
+</ul></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./"></a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="appendix" class="section level1" number="6">
+<h1><span class="header-section-number">6</span> Appendix</h1>
+<div id="App:A" class="section level2" number="6.1">
+<h2><span class="header-section-number">6.1</span> Detailed Method</h2>
+<p>The following appendix is an argumentary version of the method that focuses on the reasoning behind the methodological choices.</p>
+<div id="signal-filter" class="section level3" number="6.1.1">
+<h3><span class="header-section-number">6.1.1</span> Signal Filter</h3>
+<p>As mentioned in section <a href="method.html#dataproc">2.4</a> a lowpass zero-phase 2nd order 12 Hz and 19 Hz butterworth filter was implemented on the acceleration and rotation data respectively. A visual representation of the filter was created (see figure <a href="appendix.html#fig:lowpassFilter">6.1</a>) to verify the chosen filter. Where plot A and B shows the forward acceleration in the time domain prior and after the implementation of the filter, respectively. Plot C and D shows the same acceleration vector but in the frequency domain before and after the implementation of the filter, respectively.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:lowpassFilter"></span>
+<img src="img/signalfilter.jpeg" alt="Forward acceleration showed in time (1A,1B) and frequency (1C,1D) domain. The left plots (1A,1C) are before filtering and the right plots (1B,1D) are after filtering (at 12Hz). The same goes for plot two for pitch velocity (at 19Hz)" width="80%" />
+<p class="caption">
+Figure 6.1: Forward acceleration showed in time (1A,1B) and frequency (1C,1D) domain. The left plots (1A,1C) are before filtering and the right plots (1B,1D) are after filtering (at 12Hz). The same goes for plot two for pitch velocity (at 19Hz)
+</p>
+</div>
+<p>Cut-off frequency is often arbitrary selected in the literature, which may be an issue because of how different each data set can be depended on the data collection method and the individuals participating . However, it is out of scope for this project to investigate the optimal cut-off frequency. Therefore, other studies were investigated to find a prober cut-off.
+ validated the use of Catapults Minimax S4 (earlier version than the Vector S7) for use in team sports, when sampling at 100 Hz, with the use of a zero-lag low-pass butterworth filter at 12Hz. This was done on a scripted team sports circuit simulation with jumps, sprints, tackles and change of directions. Furthermore,  investigated the best cut-off during postural pertubations on a controlled treadmill with the use of an IMU placed on the trunk, samplings at 128 Hz. The pertubations would incrementally increase in both forward and backwards direction till the participant was unable to stand upright. They found that the best cut-off frequency was <span class="math inline">\(35 \pm 10\)</span> Hz for linear accelerations (accelerometer data) and <span class="math inline">\(26 \pm 7\)</span> Hz for Angular velocity (gyroscope data).
+This was based on an energy spectrum analysis done 5 cs before the trunk moved and 50 cs after, which means the cut-offs are only applicable during the fall.</p>
+<p>A handball match contains a mix of low intense and high intense activities, while also containing a lot of noise from other players pulling and pushing, or even touching the IMU on the back. Therefore it seemed reasonable to use the the 12 Hz recommended by  for the accelerations and use the lowerbound of  recommendation for angular velocity: 19 Hz.</p>
+</div>
+<div id="trend-removal-of-time-series-data" class="section level3" number="6.1.2">
+<h3><span class="header-section-number">6.1.2</span> Trend removal of time series data</h3>
+<p>After the signal filtering the linear trend was removed from the accelerometer and gyroscope. Which was executed with <em>pracma::detrend</em> v2.3.3 in R. This is especially important for the gyroscope, because of its tendency to drift over time . However, as can be seen in figure <a href="appendix.html#fig:trendGrid">6.2</a> there might not have been a reason to remove the trend for neither the accelerometer or the gyroscope, since it would consist of a very small error. This suggests that the proprietary Kalman Filter from OpenField 1.21.1, Catapult Sports, might have taken care of the drift.
+The trend was calculated by differencing the data before and after the implementation of <em>pracma::detrend</em>.
+Even though it might not have been needed, it is still a good practice.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:trendGrid"></span>
+<img src="img/trendGrid.png" alt="Showing accelerometer direction and gyroscope rotations with and without the trend and the trend" width="80%" />
+<p class="caption">
+Figure 6.2: Showing accelerometer direction and gyroscope rotations with and without the trend and the trend
+</p>
+</div>
+</div>
+<div id="cs-sized-windows" class="section level3" number="6.1.3">
+<h3><span class="header-section-number">6.1.3</span> 50 cs sized windows</h3>
+<p>Handball is a high intensive invasive team sport with numerous changes of directions, accelerations and decelerations. In an instant a running movement can turn to a hard deceleration to change the direction. Therefore it was important that the windows was not too wide.  investigated daily tasks with a window length of 50 cs with a step size of 25 cs for feature extraction and  who investigated filter settings for high intense activities (falls) used a window length of 50 cs after they saw the trunk move.
+Furthermore, while  investigated the importance of leave-one-subject-out approach in human activity recognition, where all of the performed activities were controlled and in different tempos (walk, run, cycling, rowing, waist rotation, etc), they also found different optimal window lengths depending on which aggregated features they used. In general the decision tree (their only tree like model) always performed best with a window size between 0.25-1.25s. Which led to the use of a 50 cs sliding window for locomotion movements (Low Intensity, Dynamic, Running).
+Throw labels was labeled with -50 cs and 50 cs windows from the moment the ball left the hand, this was done because throw is an instantaneous event and does not have a dynamic length in the same way the locomotion labels do.  tried to detect deliveries in elite cricket fast bowlers and used the same window size for their short windows. However, they did also have a long window of -7 to 5.5 s. Though, this did not seem appropriate to use in a handball setting because of the invasion of other players and the constant changes in movements that can overlap.</p>
+</div>
+<div id="choice-of-feature-vectors" class="section level3" number="6.1.4">
+<h3><span class="header-section-number">6.1.4</span> Choice of Feature vectors</h3>
+<p>The vectors used by the catapult system was: Forward-, up-, side acceleration and roll-, pitch-, yaw angular velocity. From this five other feature vectors was calculated. The integration of the acceleration directions to get velocity and the magnitude of both the accelerations and the rotations calculated as:</p>
+<p><span class="math display">\[
+Magnitude = \sqrt{x^2 + y^2 + z^2}
+\]</span>
+Where x,y,z would be either the acceleration or the rotation components.</p>
+<p>These feature vectors was chosen because they are easy to interpret and there is a human logically dependence between these features and the movements, e.g. we can expect a low rotation and acceleration magnitude for low intensity compared to throw.</p>
+</div>
+<div id="choice-of-feature-aggregrations" class="section level3" number="6.1.5">
+<h3><span class="header-section-number">6.1.5</span> Choice of Feature Aggregrations</h3>
+<p>Several different features was calculated when aggregating each 50 cs window;</p>
+<ul>
+<li>Mean, Median, max, min, 10th Percentile, 90th percentile and IQR of each feature vector</li>
+<li>Different autocorrelation features for the acceleration and angular velocity magnitude
+<ul>
+<li>First autocorrelation coefficient</li>
+<li>Sum of squared of the first ten autocorrelation coefficients</li>
+<li>Above two on a first-differenced series and again on a twice-differenced series</li>
+</ul></li>
+<li>Integral of each vector</li>
+<li>Signal energy of the fast fourier transformed vectors</li>
+<li>Peak amplitudes of the fast fourier transformed vectors</li>
+</ul>
+<p>This added up to a total of 100 aggregated features.</p>
+<p>Movements in sports generally has a high autocorrelation in the short term. Therefore it was chosen to use the first autocorrelation coefficient. Instead of over populating the dataset with features, the sum of squares of the first ten autocorrelation coefficients was chosen which would equal one new feature instead of nine. The acceleration and angular velocity magnitude contains all the information of the original six vectors, therefore to not over populate the feature space it was chosen only to create them for these two. Furthermore, the first autocorrelation and the sum of squares was calculated for the first- and twice differenced dataseries. This was to secure stationarity .</p>
+<p>The integral of each acceleration and angular velocity vector was also computed, to get the velocity / position at the specific window, which differs from both the mean and median of the velocity vectors, while also being in absolute values.</p>
+<p>A fast fourier transformation was conducted to explore the features in the frequency domain. As can be seen in figure <a href="appendix.html#fig:FFToverlap">6.3</a> there are some clear trends for running especially for the up acceleration. This led to the calculation of the signal energy by integrating the signal for each 50 cs window while also finding the peak amplitude.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:FFToverlap"></span>
+<img src="img/OverlappingPlotsSubject10.png" alt="Frequency domain for each feature vector. Color legend: Light green = Low Intensity, Light Blue = Dynamic, Dark Green = Throw, Dark Blue = Running." width="100%" />
+<p class="caption">
+Figure 6.3: Frequency domain for each feature vector. Color legend: Light green = Low Intensity, Light Blue = Dynamic, Dark Green = Throw, Dark Blue = Running.
+</p>
+</div>
+<p>Especially the trend for running was seen across all subjects independent of their handball experience and their playing position. The energy for each label was then plotted where a clear pattern emerges as seen in figure <a href="appendix.html#fig:energySignal">6.4</a>. Each dot represents the overall energy relative to time across all occurences of a given class.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:energySignal"></span>
+<img src="img/EnergySignalScatter.png" alt="Signal energy for each label and for acceleration, angular velocity and magnitudes. Each dot represent the energy for one subject" width="100%" />
+<p class="caption">
+Figure 6.4: Signal energy for each label and for acceleration, angular velocity and magnitudes. Each dot represent the energy for one subject
+</p>
+</div>
+<p>Because of the small aggregated windows it was chosen not to use the frequency bin at which a peak would occur. The small windows would result in a low resolution of the frequency domain which would lead to poor precision. The resolution of the frequency domain is calculated as:</p>
+<p><span class="math display">\[
+\frac{Fs}{n} = \frac{100 Hz}{50} = 2 Hz
+\]</span>
+where <span class="math inline">\(Fs\)</span> is the sampling frequency and <span class="math inline">\(n\)</span> is the number of samples . This results in a resolution of 2 Hz, which means it would not be possible to differentiate between a peak at the second and third Hz bin.</p>
+</div>
+<div id="leave-one-subject-out" class="section level3" number="6.1.6">
+<h3><span class="header-section-number">6.1.6</span> Leave one subject out</h3>
+<p>When creating a training and test set in the realm of machine learning, the most often used method is a random split stratified to the output of interest. This is to get two random samples with the same output distribution.
+However, this approach does not seem feasible when working with human activity recognition. When the model is trained, the purpose of the model is to predict the movements of an unseen person. Therefore, it does not seem like a good practice to train the model on all the subjects even though a subsample of it is extracted. Furthermore, there may be a temporal correlation in the data of each subject, which is based on how experienced or fatigued a subject is .</p>
+<p>Instead of extracting two random subjects as test set, it was chosen to iterate through all of them. Which equals to 12 trained models where one subject for each iteration was left out and tested on. Because of the heterogeneous group of the subjects in this study, this will help indicate the importance of conducting this practice. While also avoiding “p-hacking” by subjectively choosing the best subjects to test on.</p>
+</div>
+<div id="variable-selection-using-random-forest" class="section level3" number="6.1.7">
+<h3><span class="header-section-number">6.1.7</span> Variable Selection Using Random Forest</h3>
+<p>“Variable Selection Using Random Forest” (VSURF) is a feature selection approach that utilizes random forest to select the most important variables from a given dataset .
+This procedure is important to remove features that is producing noise to the prediction while also being important for the final computational time of the machine learning algorithms, e.g. fewer features will decrease the training time.
+VSURF uses a two step procedure. The first step sorts the features in descending order of importance. Then the standard deviation of the variable importance is being calculated and the minimum prediction value based on a “Classification and Regression Tree” (CART) model is set as a threshold for elimination of features. It is important to note that the Random Forest (RF) permutation importance is chosen above the gini impurity as it is found to be more reliable .</p>
+<p>The next step is variable selection for interpretation, which is variables that is highly related to the response variable. A forward step-wise method is used to add the most important variable to the least important (which is still kept after step one). The out-of-bag (OOB) error is then computed based on the average of 25 RF models and the nested model with the lowest OOB error is selected.
+Then the variable selection for prediction, which is variables that will be sufficient for a good parsimonious prediction of the response variable is conducted. Again a forward step-wise method is used where the variable is only added if the error gain exceeds a given threshold. The threshold is the error decrease needed to be significantly greater than the averaged variation from noisy variables .</p>
+</div>
+<div id="upsampling-techniques" class="section level3" number="6.1.8">
+<h3><span class="header-section-number">6.1.8</span> Upsampling techniques</h3>
+<p>Each machine learning model was trained on a non-, ADASYN- and SMOTE-upsampled data set.
+The reason for upsampling was the huge imbalance in the data set, as can be seen in figure <a href="appendix.html#fig:imbData">6.5</a>. The left plot shows an imbalance based on each occurence of a tag in the match where the right plot shows the imbalance relative to the time period each occurence lasted, e.g Low intensity had a tendency to last <span class="math inline">\(13.5 \pm 8.39\)</span> s while Throw only lasted <span class="math inline">\(1.05 \pm 0.03\)</span> s. Because of this the imbalance is even greater after the 50 cs rolling window has been applied.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:imbData"></span>
+<img src="00-main_files/figure-html/imbData-1.png" alt="Plots showing occurence for each label. The hue represents each subject and are stacked. The left plot is each occurence as observed from the match and the right plot is after subdivision into 500 ms windows and represents the imbalance data set used in the machine learning model if no upsampling were used." width="100%" />
+<p class="caption">
+Figure 6.5: Plots showing occurence for each label. The hue represents each subject and are stacked. The left plot is each occurence as observed from the match and the right plot is after subdivision into 500 ms windows and represents the imbalance data set used in the machine learning model if no upsampling were used.
+</p>
+</div>
+<p> tested different upsampling methods on 86 different data sets to see which method in general performed best. Even though he found that SMOTE in general performed best and ADASYN following close behind, he acknowledged that there is no such thing as a free lunch, and the best upsampling method is relative to the data set. Therefore both SMOTE and ADASYN was chosen.</p>
+<p>The basic idea behind SMOTE is to synthesize examples of the minority classes with the use of K-nearest neightbor. Then the synthesized exampled will be randomly inserted along the line segments as can be seen in figure <a href="appendix.html#fig:SMOTE">6.6</a> .</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:SMOTE"></span>
+<img src="img/smoteExample.png" alt="Concept of SMOTE." width="60%" />
+<p class="caption">
+Figure 6.6: Concept of SMOTE.
+</p>
+</div>
+<p>ADASYN is almost like an extension to SMOTE. Where the algorithm creates a weight distribution to each data point for the minority classes based on how hard that particular data point is to distinguish from another class. Then ADASYN focuses on upsampling the data points that is difficult to distinguish. A visual example of the upsampling difference can be seen in <a href="appendix.html#fig:adasyn">6.7</a> where most of the purple cases is upsampled away from the green and yellow classes when using SMOTE but ADASYN focuses on upsampling the difficult cases that sits in between.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:adasyn"></span>
+<img src="img/smoteVadasyn.png" alt="The difference between SMOTE and ADASYN" width="80%" />
+<p class="caption">
+Figure 6.7: The difference between SMOTE and ADASYN
+</p>
+</div>
+</div>
+<div id="futility-analysis-for-hyperparameter-tuning" class="section level3" number="6.1.9">
+<h3><span class="header-section-number">6.1.9</span> Futility Analysis for hyperparameter tuning</h3>
+<p>Hyperparameters are parameters that will be determined prior to training the model. They effect how the algorithm will learn from the data. For an example the number of trees or the depth of each tree in a random forest model, or a cost function for predicting a sample within or on the wrong side of a margin in a support vector machine. This is used to tune the model to get as good a fit as possible. It is also possible to tune regularization parameters which shrinks the coefficient estimates to avoid overfitting, examples of this would be Least Absolute Shrinkage and Selection Operator (LASSO) or Ridge Regression .</p>
+<p>The k-fold cross-validation method was chosen to tune the hyperparameters, as it is recommended in the litterature because of its small bias . It is important to note, that this is done after a subject have been extracted as a test set by the leave-one-subject-out approach.
+From here a grid search strategy would be used to find the optimal hyperparameters. The issue with this method is that each parameter solution are treated equally. Therefore a more efficient method, futility analysis, is chosen to decrease the computation time, <em>finetune::tune_race_anova</em>. This search will eliminate parameter combinations that is unlikely to be a best result, based on a repeated measures ANOVA model.</p>
+</div>
+<div id="model-performance-metrics" class="section level3" number="6.1.10">
+<h3><span class="header-section-number">6.1.10</span> Model performance metrics</h3>
+<p>A lot of different metrics exist to determine the best performing model; Accuracy, Sensitivity, Specificity, Precision, F-measure, Area under the curve of a ROC curve (AUC) and more.
+Not one of these metrics can proberly evaluate the performance of a model by it self. For an example a lot of studies focus their performance metrics on accuracy . The issue with accuracy is its dependency to the class distribution of a dataset and can therefore show an unrealistic high accuracy . Fortunately many studies also give metrics like precision, sensitivity and F-measure.</p>
+<p>The current study chose the following metrics: weighted F-measure, Kappa, Matthew Correlation Coefficient (MCC), Accuracy, weighted sensitivity, and weighted specificity.
+The reason for weighting F-measure, sensitivity and specificity is to balance out the imbalance in a multi-class classification problem. The choice of Kappa was to create an easily interpretable metric that showed the agreement between the actual and predicted outcome. However, Kappa has shown issues with imbalanced datasets, and also suffers from the two Kappa paradoxes; <em>prevalence paradox</em> and <em>bias paradox</em>. Because of this another measure was added, Matthew Correlation Coefficient. Kappa and MCC behaves a little differently depending on the symmetry and entropy of the confusion matrix so by providing both it is possible to get a more in depth view of the models performance .</p>
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="conclusion.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"search": false,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

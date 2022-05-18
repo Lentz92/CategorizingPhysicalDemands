@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>2 Method | 00-main.knit</title>
+  <meta name="description" content="" />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="2 Method | 00-main.knit" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="2 Method | 00-main.knit" />
+  
+  
+  
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="introduction.html"/>
+<link rel="next" href="results.html"/>
+<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+
+
+
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="1" data-path="introduction.html"><a href="introduction.html"><i class="fa fa-check"></i><b>1</b> Introduction</a></li>
+<li class="chapter" data-level="2" data-path="method.html"><a href="method.html"><i class="fa fa-check"></i><b>2</b> Method</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="method.html"><a href="method.html#participants"><i class="fa fa-check"></i><b>2.1</b> Participants</a></li>
+<li class="chapter" data-level="2.2" data-path="method.html"><a href="method.html#protocol-design"><i class="fa fa-check"></i><b>2.2</b> Protocol design</a>
+<ul>
+<li class="chapter" data-level="2.2.1" data-path="method.html"><a href="method.html#technical-design"><i class="fa fa-check"></i><b>2.2.1</b> Technical design</a></li>
+<li class="chapter" data-level="2.2.2" data-path="method.html"><a href="method.html#practical-design"><i class="fa fa-check"></i><b>2.2.2</b> Practical design</a></li>
+</ul></li>
+<li class="chapter" data-level="2.3" data-path="method.html"><a href="method.html#labeling"><i class="fa fa-check"></i><b>2.3</b> Labeling</a></li>
+<li class="chapter" data-level="2.4" data-path="method.html"><a href="method.html#dataproc"><i class="fa fa-check"></i><b>2.4</b> Data processing</a></li>
+<li class="chapter" data-level="2.5" data-path="method.html"><a href="method.html#feature-engineering"><i class="fa fa-check"></i><b>2.5</b> Feature engineering</a></li>
+<li class="chapter" data-level="2.6" data-path="method.html"><a href="method.html#trainModels"><i class="fa fa-check"></i><b>2.6</b> Training the models</a></li>
+<li class="chapter" data-level="2.7" data-path="method.html"><a href="method.html#extraction-of-trends-in-the-model"><i class="fa fa-check"></i><b>2.7</b> Extraction of trends in the model</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>3</b> Results</a></li>
+<li class="chapter" data-level="4" data-path="discussion.html"><a href="discussion.html"><i class="fa fa-check"></i><b>4</b> Discussion</a></li>
+<li class="chapter" data-level="5" data-path="conclusion.html"><a href="conclusion.html"><i class="fa fa-check"></i><b>5</b> Conclusion</a></li>
+<li class="chapter" data-level="6" data-path="appendix.html"><a href="appendix.html"><i class="fa fa-check"></i><b>6</b> Appendix</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="appendix.html"><a href="appendix.html#App:A"><i class="fa fa-check"></i><b>6.1</b> Detailed Method</a>
+<ul>
+<li class="chapter" data-level="6.1.1" data-path="appendix.html"><a href="appendix.html#signal-filter"><i class="fa fa-check"></i><b>6.1.1</b> Signal Filter</a></li>
+<li class="chapter" data-level="6.1.2" data-path="appendix.html"><a href="appendix.html#trend-removal-of-time-series-data"><i class="fa fa-check"></i><b>6.1.2</b> Trend removal of time series data</a></li>
+<li class="chapter" data-level="6.1.3" data-path="appendix.html"><a href="appendix.html#cs-sized-windows"><i class="fa fa-check"></i><b>6.1.3</b> 50 cs sized windows</a></li>
+<li class="chapter" data-level="6.1.4" data-path="appendix.html"><a href="appendix.html#choice-of-feature-vectors"><i class="fa fa-check"></i><b>6.1.4</b> Choice of Feature vectors</a></li>
+<li class="chapter" data-level="6.1.5" data-path="appendix.html"><a href="appendix.html#choice-of-feature-aggregrations"><i class="fa fa-check"></i><b>6.1.5</b> Choice of Feature Aggregrations</a></li>
+<li class="chapter" data-level="6.1.6" data-path="appendix.html"><a href="appendix.html#leave-one-subject-out"><i class="fa fa-check"></i><b>6.1.6</b> Leave one subject out</a></li>
+<li class="chapter" data-level="6.1.7" data-path="appendix.html"><a href="appendix.html#variable-selection-using-random-forest"><i class="fa fa-check"></i><b>6.1.7</b> Variable Selection Using Random Forest</a></li>
+<li class="chapter" data-level="6.1.8" data-path="appendix.html"><a href="appendix.html#upsampling-techniques"><i class="fa fa-check"></i><b>6.1.8</b> Upsampling techniques</a></li>
+<li class="chapter" data-level="6.1.9" data-path="appendix.html"><a href="appendix.html#futility-analysis-for-hyperparameter-tuning"><i class="fa fa-check"></i><b>6.1.9</b> Futility Analysis for hyperparameter tuning</a></li>
+<li class="chapter" data-level="6.1.10" data-path="appendix.html"><a href="appendix.html#model-performance-metrics"><i class="fa fa-check"></i><b>6.1.10</b> Model performance metrics</a></li>
+</ul></li>
+</ul></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./"></a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="method" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Method</h1>
+<p>The data collecting was done in a previous semester report, “Is it possible to predict movements in handball with machine learning using a single inertial measurement unit?” (Lentz-Nielsen et al. 2021), which was also conducted by the author of this report.</p>
+<p>A more detailed explanation of the data processing can be found in appendix <a href="appendix.html#App:A">6.1</a> where some of the theory are described and discussion of their use.</p>
+<div id="participants" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> Participants</h2>
+<p>Five males and seven females participated in the study (<span class="math inline">\(21 \pm 2\)</span> years old, <span class="math inline">\(179 \pm 7\)</span> cm, <span class="math inline">\(78 \pm 9\)</span> kg, <span class="math inline">\(7 \pm 4\)</span> years of handball experience). They all had a high level of experience in physical activities. Though, they had varying levels of experience with handball ranging from beginners to former youth elite level players. Subjects were informed of the structure of the test protocol, and signed an informed consent prior to testing.</p>
+</div>
+<div id="protocol-design" class="section level2" number="2.2">
+<h2><span class="header-section-number">2.2</span> Protocol design</h2>
+<div id="technical-design" class="section level3" number="2.2.1">
+<h3><span class="header-section-number">2.2.1</span> Technical design</h3>
+<p>3D acceleration and 3D rotation was measured with an IMU to develop a supervised machine learning algorithm to detect handball events within a regular handball match (introduced in section <a href="method.html#labeling">2.3</a>).
+Video recordings were collected and used to label each event as the ground-truth for the supervised machine learning algorithm to train and test on. To measure the inertial sensor data, players wore a vest with a Catapult Vector S7 placed between the scapulae on the upper back. Triaxial accelerometers and the gyroscope had a range of <span class="math inline">\(3D \pm 16g\)</span>, and <span class="math inline">\(2000^{\circ}/s\)</span> respectively, which collected data, at 100Hz. A magnetometer was also part of the IMU (see figure <a href="method.html#fig:globalSystem">2.1</a> for the IMU orientation).</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:globalSystem"></span>
+<img src="img/globalSystem.png" alt="Orientation of the IMU sensor" width="75%" />
+<p class="caption">
+Figure 2.1: Orientation of the IMU sensor
+</p>
+</div>
+<p>Videos were recorded by two GoPro Hero 7 cameras at 48fps and a resolution of 1920x1080 pixels. The cameras were placed approximately 5 m behind each backline and 3 m above the playing field, with an angle at roughly <span class="math inline">\(15^{\circ}\)</span> relative to the ground, to make a whole field recording possible.</p>
+<p>To ensure synchronization between the IMUs and cameras, four interrupting periods were implemented to the handball match. One in the beginning and three during the match with 5 min in between. During the interruptions the players were instructed to stop all movement for 10 s, then do three jumps with 1 s in between and subsequently stand still for 10 s before returning to the match. These periods were easily detectable on IMU recordings as can be see in figure <a href="method.html#fig:jumps">2.2</a>. The pauses were controlled by the handball referee.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:jumps"></span>
+<img src="img/Subject07JumpExample.jpeg" alt="Example of the data during the interruption periods" width="100%" />
+<p class="caption">
+Figure 2.2: Example of the data during the interruption periods
+</p>
+</div>
+<p>To ensure correct mapping of the devices to the subjects, a manual exploration of the raw data was conducted. The pattern from the yaw velocity during hard overhead throws was easily detectable in the data and ensured correct mapping (see figure <a href="method.html#fig:yawPhoto">2.3</a>).</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:yawPhoto"></span>
+<img src="img/yawPhoto.png" alt="Graph represents one of the subjects performing a hard overhead throw. With yaw angular velocity on the y axis and time on the x axis. The pictures is the physical movements the graph is recorded from. " width="100%" />
+<p class="caption">
+Figure 2.3: Graph represents one of the subjects performing a hard overhead throw. With yaw angular velocity on the y axis and time on the x axis. The pictures is the physical movements the graph is recorded from.
+</p>
+</div>
+</div>
+<div id="practical-design" class="section level3" number="2.2.2">
+<h3><span class="header-section-number">2.2.2</span> Practical design</h3>
+<p>Prior to the match all players participated in a self-paced warm up routine that had a primary focus to warm up the ankle-. knee-, and shoulder joints. Two matches of 20 min. duration were arranged. Six field players were on each team (Team A and Team B). A limited number of IMUs were available to monitor all players simultaneously, therefore two matches were held. Team A was recorded in the first match and team B in the second. None of the teams were allowed any substitutions and a 15 min. break separated the two matches where the equipment was cleaned and placed on the second team.</p>
+</div>
+</div>
+<div id="labeling" class="section level2" number="2.3">
+<h2><span class="header-section-number">2.3</span> Labeling</h2>
+<p>The specific events in handball relevant for the current study to research, were selected based on the physical demands of the sport. These demands can be classified as either locomotion, e.g., walking and running, or technical events e.g. throws . To facilitate the classification, the use of IMUs were chosen in addition to video recordings. The video recordings were used as the ground truth for each performed event. Consequently, three events was chosen to describe the locomotion movements; Low Intensity (LI), Running, and Dynamic. Overhead throws was chosen as the only technical throw event to label. The reason for it to be specifically overhead throws was to ensure that the IMU could detect the throws, while also being the type of throw with higher intensity .</p>
+<p>The labeling process was done with Catapult Vision v5.2.0 software, where each locomotion event was manually labeled with a dynamic length for each occurence of the event. The overhead throws is an instantaneous event therefore the labeling of these was done with ~0.5s before and after the release of the ball which results in a one second static length of each overhead throw occurence. The number of occurences and the length of each label relative to the subject can be seen in table <a href="#tab:eventduration"><strong>??</strong></a></p>
+</div>
+<div id="dataproc" class="section level2" number="2.4">
+<h2><span class="header-section-number">2.4</span> Data processing</h2>
+<p>The changes in the orientation of the IMU sensor was accounted for by a Kalman Filter provided by the manufacturer (OpenField 1.21.1, Catapult Sports, Melbourne, Australia).
+Hereafter the inertial data and labeling data was imported to R statistical software package v4.1.1, where the synchronized labels were applied to the synchronized IMU data in respect to the subject and time. Each occurence of the events listed in table <a href="#tab:labels"><strong>??</strong></a> was enumerated by a unique occurence ID; the first time Dynamic movement occurs for subject one, it will recieve the occurence ID #1. The second time it occurs, it will get the occurence ID #2 and so on.</p>
+<p>Prior to the feature engineering a lowpass zero-phase 2nd order 12 Hz and 19 Hz Butterworth filter was implemented on the acceleration and rotation data respectively, to attenuate frequencies above the chosen cut-off . Furthermore, the linear trend from each acceleration axis was removed, to secure that there were no bias or drift in the data. This also removes the gravitation component from the output of the accelerometers.</p>
+</div>
+<div id="feature-engineering" class="section level2" number="2.5">
+<h2><span class="header-section-number">2.5</span> Feature engineering</h2>
+<p>An overview of the workflow from the processed data to the creation of a control flow can be see in figure <a href="method.html#fig:featureWorkflow">2.4</a></p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:featureWorkflow"></span>
+<img src="img/featureworkflow.png" alt="Showing the workflow from time series to validation of the model" width="80%" />
+<p class="caption">
+Figure 2.4: Showing the workflow from time series to validation of the model
+</p>
+</div>
+<p>First a few new time series features were created; acceleration magnitude, angular magnitude and triaxial velocities.
+A non overlapping window of a given occurence for each label was then created with a length of 50 cs (see figure <a href="method.html#fig:aggFeat">2.5</a>). However, the different occurences differs in length, where the last block of an occurence will usually be smaller than 50 cs. A threshold was made, if the last block was shorter than 25 cs it would be removed from the data. From here several different features was calculated when aggregating each 50 cs window;</p>
+<ul>
+<li>Mean, Median, max, min, 10th Percentile, 90th percentile and IQR of each feature vector</li>
+<li>Different Autocorrelation features for the acceleration and angular velocity magnitude
+<ul>
+<li>First autocorrelation coefficient</li>
+<li>Sum of squared of the first ten autocorrelation coefficients</li>
+<li>Above two on a first-differenced series and again on a twice-differenced series</li>
+</ul></li>
+<li>Integral of each vector</li>
+<li>Signal energy of the fast fourier transformed vectors</li>
+<li>Peak amplitudes of the fast fourier transformed vectors</li>
+</ul>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:aggFeat"></span>
+<img src="img/aggFeatures2.png" alt="From signal, to window to aggregated features (scalars)." width="50%" />
+<p class="caption">
+Figure 2.5: From signal, to window to aggregated features (scalars).
+</p>
+</div>
+<p>After calculation of the aggregated features a feature selection approach was executed.
+“Variable Selection Using Random Forest” (VSURF)  package within R was used to extract the most important variables and discard the once which would not contribute to higher classification accuracy.</p>
+</div>
+<div id="trainModels" class="section level2" number="2.6">
+<h2><span class="header-section-number">2.6</span> Training the models</h2>
+<p>The data was split into a training and test set by the “leave-one-subject-out” approach. A v-fold cross validation was used on the training set to tune the hyperparameters for each model.
+Three preprocessing approaches were used: No upsampling, SMOTE  and ADASYN . These where then used in four different models: Support Vector Machine with a radial basis kernel, K-Nearest Neighbor, Random Forest and Extreme Gradient Boosted Tree. All models was tuned for hyperparameters with the use of the <em>tune_race_anova</em> function from the <em>finetune</em> v0.1.0 package in R.
+Several performance metrics was calculated: weighted F-measure, Kappa, Matthews Correlation Coefficient (MCC), accuracy, weighted sensitivity and weighted specificity. The best performing models was chosen based on the F-measure and MCC. The F-measure represents the harmonic mean of precision and sensitivity. The F-measure is chosen above accuracy because of the lack of an even distribution in the labels, while also being a better metric when false negatives and false positives are of importance . Together with the F-measure the MCC was chosen . MCC measures the difference between actual and predicted value and takes imbalanced data into account as well.</p>
+<p>This approach would be repeated for each subject in the data. The first iteration would have Subject 02 pulled out and used as the test set, the second iteration would have Subject 04 pulled out and used as the test set and so on.</p>
+</div>
+<div id="extraction-of-trends-in-the-model" class="section level2" number="2.7">
+<h2><span class="header-section-number">2.7</span> Extraction of trends in the model</h2>
+<p>To develop a manual algorithm to classify movements in handball (see figure <a href="method.html#fig:algExample">2.6</a> for an example) it was necessary to derive a prediction rule ensemble from the model. This was done with the <em>pre</em> package v1.0.1 . The package derives ensemble rules the machine learning model uses to classify the data.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:algExample"></span>
+<img src="img/algorithmExample.png" alt="Example of a simple algorithm. The metrics and cutoffs is purely an example." width="75%" />
+<p class="caption">
+Figure 2.6: Example of a simple algorithm. The metrics and cutoffs is purely an example.
+</p>
+</div>
+<p>This was done as an iterative proces for a binary classification problem to make it easier to interpret. The first iteration would determine if LI occured or not e.g., LI vs. Activity (Dynamic, Running, Throw) and then use the rules from that model to determine when a movement is LI. The rules was interpreted with the help of a variable importance plot of the decision trees and partial dependence plots.
+From here the LI labels were extracted, and the next iteration would be Throw vs. Locomotion (Dynamic, Running), and the last iteration would be Dynamic vs. Throw.</p>
+<p>Each time a label was extracted a new model was made (see section <a href="method.html#trainModels">2.6</a>) to see the effect on the overall prediction.</p>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="introduction.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="results.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"search": false,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
